@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SheetTable } from '@/features/sheet-table';
-import { ThemeToggle } from '@/features/theme-toggle';
-import { useCompanyList } from '@/entities/sheet';
+import { SheetTable, ThemeToggle } from '@/features';
+import { useCompanyList } from '@/entities';
 
 const SHEET_ID = '1vrN5gvtokWxPs8CNaNcvZQLWyIMBOIcteYXQbyfiZl0';
 const SHEET_NAMES = {

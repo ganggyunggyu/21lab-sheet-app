@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { SheetTable, useSpreadsheetMetadata } from '@/features/sheet-table';
-import { ThemeToggle } from '@/features/theme-toggle';
+import { SheetTable, ThemeToggle, useSpreadsheetMetadata } from '@/features';
 import { ArrowLeft } from 'lucide-react';
 
 export default function SheetPage() {

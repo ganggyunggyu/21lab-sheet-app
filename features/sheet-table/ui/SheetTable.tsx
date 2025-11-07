@@ -10,7 +10,7 @@ import {
   useUpdateSheetRow,
   useSyncVisibility,
 } from '../lib/hooks';
-import { useCompanyList } from '@/entities/sheet';
+import { useCompanyList } from '@/entities';
 
 type FilterType = 'all' | 'visible' | 'empty';
 
