@@ -12,6 +12,10 @@ Next.js 기반 Google Sheets 연동 관리 대시보드 애플리케이션
   - 날짜 기반 컬럼 자동 필터링 (±7일)
   - 노출 여부 필터 (전체/노출/미노출)
 - 🔄 **시트 간 동기화** - 회사별 시트 노출 여부 일괄 업데이트
+- 💾 **MongoDB 동기화** - Google Sheets 데이터를 MongoDB에 저장
+  - 키워드별 노출 여부 관리
+  - Upsert 패턴으로 최신 데이터만 유지
+  - 크론 서버와 연동 가능
 - 🎨 **다크모드 지원** - localStorage 기반 테마 저장
 - 🚀 **최적화된 성능**
   - TanStack Query로 효율적인 데이터 캐싱
@@ -31,6 +35,7 @@ Next.js 기반 Google Sheets 연동 관리 대시보드 애플리케이션
 ### API & 데이터
 - **Axios 1.13.2** - HTTP 클라이언트
 - **Google APIs 164.1.0** - Google Sheets API
+- **MongoDB + Mongoose 8.19.3** - NoSQL 데이터베이스
 - **Zod 4.1.12** - 스키마 검증
 
 ### UI & Styling
@@ -46,11 +51,17 @@ Next.js 기반 Google Sheets 연동 관리 대시보드 애플리케이션
 ```
 sheet-app/
 ├── app/                    # Next.js App Router
-│   ├── api/sheets/[id]/   # API 라우트
+│   ├── api/
+│   │   ├── keywords/      # 키워드 CRUD API
+│   │   └── sheets/[id]/   # Google Sheets API
 │   ├── sheets/[sheetId]/  # 동적 페이지
 │   ├── page.tsx           # 메인 페이지
 │   └── providers.tsx      # 글로벌 Provider
 ├── entities/              # 비즈니스 도메인 엔티티
+│   ├── keyword/
+│   │   ├── model/        # Mongoose Schema
+│   │   ├── api/          # DB CRUD 함수
+│   │   └── lib/          # TanStack Query hooks
 │   ├── sheet/
 │   │   ├── model/        # Jotai atoms
 │   │   ├── api/          # API 함수
@@ -65,7 +76,8 @@ sheet-app/
 │   └── theme-toggle/
 │       └── ui/
 ├── shared/                # 공통 모듈
-│   └── api/              # Axios 클라이언트
+│   ├── api/              # Axios 클라이언트
+│   └── db/               # MongoDB 연결
 └── lib/                   # 서버 전용 유틸
     └── google-sheets.ts  # Google Sheets API 로직
 ```
@@ -89,7 +101,31 @@ sheet-app/
 5. **키** 탭 → **키 추가** → **새 키 만들기** → **JSON** 선택
 6. JSON 파일 다운로드 (안전한 곳에 보관)
 
-### 2. 환경 변수 설정
+### 2. MongoDB 설치 및 설정
+
+#### 옵션 1: 로컬 MongoDB 설치
+
+```bash
+# macOS (Homebrew)
+brew tap mongodb/brew
+brew install mongodb-community
+
+# MongoDB 시작
+brew services start mongodb-community
+
+# 연결 확인
+mongosh
+```
+
+#### 옵션 2: MongoDB Atlas (클라우드)
+
+1. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 회원가입
+2. 무료 클러스터 생성 (M0 Sandbox)
+3. Database Access에서 사용자 추가
+4. Network Access에서 IP 화이트리스트 추가 (개발 시 0.0.0.0/0)
+5. Connect → Connect your application에서 연결 URI 복사
+
+### 3. 환경 변수 설정
 
 프로젝트 루트에 `.env.local` 파일 생성:
 
@@ -97,16 +133,24 @@ sheet-app/
 # .env.local
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project-id.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# MongoDB 연결 URI
+MONGODB_URI=mongodb://localhost:27017/sheet-app
+# 또는 MongoDB Atlas
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/sheet-app
 ```
 
 **설정 방법:**
 1. 다운로드한 JSON 파일 열기
 2. `client_email` 값을 `GOOGLE_SERVICE_ACCOUNT_EMAIL`에 복사
 3. `private_key` 값을 `GOOGLE_PRIVATE_KEY`에 복사 (따옴표로 감싸기)
+4. MongoDB URI를 `MONGODB_URI`에 설정
 
-⚠️ **주의**: `private_key`는 `\n` 줄바꿈 문자를 포함하여 그대로 복사
+⚠️ **주의**:
+- `private_key`는 `\n` 줄바꿈 문자를 포함하여 그대로 복사
+- MongoDB Atlas 사용 시 username과 password를 실제 값으로 변경
 
-### 3. Google Sheets 권한 설정
+### 4. Google Sheets 권한 설정
 
 1. 관리할 Google Sheets 문서 열기
 2. **공유** 버튼 클릭
@@ -114,7 +158,7 @@ GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\
 4. 권한: **편집자** 선택
 5. 완료
 
-### 4. 설치 및 실행
+### 5. 설치 및 실행
 
 ```bash
 # 의존성 설치
