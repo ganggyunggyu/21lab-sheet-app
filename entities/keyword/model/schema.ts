@@ -48,6 +48,9 @@ if (typeof window === 'undefined') {
     }
   );
 
+  // Helpful index for common queries/updates
+  KeywordSchema.index({ company: 1, keyword: 1, sheetType: 1 });
+
   Keyword =
     mongoose.models.Keyword ||
     mongoose.model<IKeyword>('Keyword', KeywordSchema);
