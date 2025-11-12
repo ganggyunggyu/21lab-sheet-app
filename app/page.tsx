@@ -149,6 +149,70 @@ export default function Home() {
     }
   };
 
+  const handleSyncAllToDB = async () => {
+    setIsSyncing(true);
+    const toastId = toast.loading('전체 시트 동기화 중...');
+
+    try {
+      // 1. 패키지 동기화
+      toast.loading('패키지 동기화 중...', { id: toastId });
+      const packageResponse = await fetch('/api/keywords/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sheetId: SHEET_ID,
+          sheetName: SHEET_NAMES.PACKAGE,
+          sheetType: 'package',
+        }),
+      });
+
+      if (!packageResponse.ok) {
+        const errorData = await packageResponse.json();
+        throw new Error(`패키지 동기화 실패: ${errorData.error}`);
+      }
+
+      const packageResult = await packageResponse.json();
+      console.log('✅ 패키지 동기화 완료:', packageResult);
+
+      // 2. 도그마루 제외 동기화
+      toast.loading('도그마루 제외 동기화 중...', { id: toastId });
+      const dogmaruResponse = await fetch('/api/keywords/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sheetId: SHEET_ID,
+          sheetName: SHEET_NAMES.DOGMARU_EXCLUDE,
+          sheetType: 'dogmaru-exclude',
+        }),
+      });
+
+      if (!dogmaruResponse.ok) {
+        const errorData = await dogmaruResponse.json();
+        throw new Error(`도그마루 제외 동기화 실패: ${errorData.error}`);
+      }
+
+      const dogmaruResult = await dogmaruResponse.json();
+      console.log('✅ 도그마루 제외 동기화 완료:', dogmaruResult);
+
+      // 3. 결과 메시지
+      const totalDeleted = packageResult.deleted + dogmaruResult.deleted;
+      const totalInserted = packageResult.inserted + dogmaruResult.inserted;
+
+      toast.success(
+        `전체 동기화 완료! 패키지: ${packageResult.inserted}개, 도그마루 제외: ${dogmaruResult.inserted}개 (총 삭제: ${totalDeleted}, 총 삽입: ${totalInserted})`,
+        { id: toastId, duration: 5000 }
+      );
+    } catch (error) {
+      console.error('전체 동기화 에러:', error);
+      toast.error(
+        error instanceof Error ? error.message : '전체 동기화에 실패했습니다',
+        { id: toastId }
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const handleImportFromDB = async () => {
     const toastId = toast.loading('노출현황 불러오는 중...');
 
@@ -158,8 +222,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sheetId: SHEET_ID,
-          sheetName: currentSheetName,
-          sheetType: activeTab,
+          sheetName: 'all',
         }),
       });
 
@@ -170,10 +233,7 @@ export default function Home() {
 
       const result = await response.json();
 
-      toast.success(
-        `완료! ${result.updated}개 셀 업데이트됨`,
-        { id: toastId }
-      );
+      toast.success(`테스트 완료! ${result.updated}개 행 적용 미리보기 (전체 탭)`, { id: toastId });
     } catch (error) {
       console.error('불러오기 에러:', error);
       toast.error(
@@ -195,7 +255,15 @@ export default function Home() {
       const rootData = await rootResponse.json();
       const rootKeywords = rootData.keywords;
 
-      console.log('🔥 루트키워드 전체:', rootKeywords);
+      console.log('🔥 [Step 1] 루트키워드 전체 개수:', rootKeywords.length);
+      console.log('🔥 [Step 1] 루트키워드 처음 10개:');
+      rootKeywords.slice(0, 10).forEach((kw: any, idx: number) => {
+        console.log(
+          `  ${idx + 1}. "${kw.keyword}" (company: ${kw.company}, createdAt: ${
+            kw.createdAt
+          })`
+        );
+      });
 
       // 2. 현재 시트 데이터에서 "루트" 업체명인 키워드들 찾기
       if (!data?.data || data.data.length === 0) {
@@ -243,9 +311,15 @@ export default function Home() {
         }
       });
 
-      console.log('🔥 패키지에서 "루트" 업체명인 키워드들:', rootCompanyKeywords);
+      console.log(
+        '🔥 [Step 2] 패키지에서 "루트" 업체명인 키워드들:',
+        rootCompanyKeywords.length,
+        '개'
+      );
 
-      // 3. 매칭 로직
+      // 3. 패키지 키워드를 "순서대로 1:1" 매칭 (내용 비교 없이 순차 소비)
+      console.log('🔥 [Step 3] 매칭 시작 (순서 기반 1:1 소비)');
+
       const matchResults: Array<{
         rowIndex: number;
         originalKeyword: string;
@@ -253,39 +327,43 @@ export default function Home() {
         newKeyword: string;
       }> = [];
 
-      rootCompanyKeywords.forEach((packageKeyword) => {
-        // 루트키워드에서 매칭되는 것 찾기
-        // 루트키워드 형식: "청주맛집(아키아키)"
-        // 매칭 조건: 루트키워드의 keyword 부분이 패키지 키워드와 일치
-        const matched = rootKeywords.find((rootKw: any) => {
-          // rootKw.keyword = "청주맛집(아키아키)"
-          // 괄호 앞부분이 패키지 키워드와 일치하는지 확인
-          const match = rootKw.keyword.match(/^(.+?)\(/);
-          if (match) {
-            const rootKeywordBase = match[1];
-            return rootKeywordBase === packageKeyword.keyword;
-          }
-          return false;
+      const totalPairs = Math.min(
+        rootCompanyKeywords.length,
+        rootKeywords.length
+      );
+
+      for (let i = 0; i < totalPairs; i++) {
+        const packageKeyword = rootCompanyKeywords[i];
+        const rootKw = rootKeywords[i];
+
+        matchResults.push({
+          rowIndex: packageKeyword.rowIndex,
+          originalKeyword: packageKeyword.keyword,
+          matchedRootKeyword: rootKw.keyword,
+          newKeyword: rootKw.keyword,
         });
 
-        if (matched) {
-          matchResults.push({
-            rowIndex: packageKeyword.rowIndex,
-            originalKeyword: packageKeyword.keyword,
-            matchedRootKeyword: matched.keyword,
-            newKeyword: matched.keyword,
-          });
-        }
-      });
+        console.log(
+          `  ✅ [${i + 1}/${totalPairs}] 행 ${packageKeyword.rowIndex + 1}: "${
+            packageKeyword.keyword
+          }" → "${rootKw.keyword}" (순서 매칭)`
+        );
+      }
 
-      console.log('🔥 매칭 결과:', matchResults);
+      if (rootCompanyKeywords.length > totalPairs) {
+        console.log(
+          `  ⏭️  남은 ${
+            rootCompanyKeywords.length - totalPairs
+          }개는 루트키워드 부족으로 스킵`
+        );
+      }
+
+      console.log('🔥 [Step 4] 매칭 완료!');
       console.log('🔥 총 매칭된 키워드 수:', matchResults.length);
-      console.log('🔥 매칭 안된 키워드 수:', rootCompanyKeywords.length - matchResults.length);
-
-      // 매칭 결과 상세 출력
-      matchResults.forEach((result) => {
-        console.log(`  Row ${result.rowIndex}: "${result.originalKeyword}" → "${result.newKeyword}"`);
-      });
+      console.log(
+        '🔥 매칭 안된 키워드 수:',
+        rootCompanyKeywords.length - totalPairs
+      );
 
       if (matchResults.length === 0) {
         toast('매칭된 키워드가 없습니다', { id: toastId });
@@ -313,24 +391,30 @@ export default function Home() {
         values: [[result.newKeyword]],
       }));
 
-      const updateResponse = await fetch(`/api/sheets/${SHEET_ID}/batch-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          updates,
-          sheetName: currentSheetName,
-        }),
-      });
+      const updateResponse = await fetch(
+        `/api/sheets/${SHEET_ID}/batch-update`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            updates,
+            sheetName: currentSheetName,
+          }),
+        }
+      );
 
       if (!updateResponse.ok) {
         const errorData = await updateResponse.json();
         throw new Error(errorData.error || '시트 업데이트 실패');
       }
 
-      console.log('✅ 시트 업데이트 완료!');
+      const updateResult = await updateResponse.json();
+      console.log('✅ 시트 업데이트 완료!', updateResult);
 
       toast.success(
-        `완료! ${matchResults.length}개 키워드 업데이트됨`,
+        `적용 완료! ${matchResults.length}개 업데이트됨 (업데이트 셀: ${
+          updateResult.totalUpdated ?? updateResult.totalUpdatedCells ?? 'N/A'
+        })`,
         { id: toastId }
       );
     } catch (error) {
@@ -426,14 +510,17 @@ export default function Home() {
         values: [[result.newKeyword]],
       }));
 
-      const updateResponse = await fetch(`/api/sheets/${SHEET_ID}/batch-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          updates,
-          sheetName: currentSheetName,
-        }),
-      });
+      const updateResponse = await fetch(
+        `/api/sheets/${SHEET_ID}/batch-update`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            updates,
+            sheetName: currentSheetName,
+          }),
+        }
+      );
 
       if (!updateResponse.ok) {
         const errorData = await updateResponse.json();
@@ -442,10 +529,9 @@ export default function Home() {
 
       console.log('✅ 시트 업데이트 완료!');
 
-      toast.success(
-        `완료! ${removeResults.length}개 키워드 업체명 제거됨`,
-        { id: toastId }
-      );
+      toast.success(`완료! ${removeResults.length}개 키워드 업체명 제거됨`, {
+        id: toastId,
+      });
     } catch (error) {
       console.error('제거 에러:', error);
       toast.error(
@@ -524,6 +610,13 @@ export default function Home() {
               className="rounded bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600"
             >
               {isSyncing ? '동기화 중...' : '내보내기'}
+            </button>
+            <button
+              onClick={handleSyncAllToDB}
+              disabled={isSyncing}
+              className="rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
+            >
+              {isSyncing ? '동기화 중...' : '전체 내보내기'}
             </button>
           </div>
         </div>
