@@ -1,14 +1,8 @@
 import { connectDB } from '@/shared';
-import { Keyword, IKeyword } from '../model';
+import { Keyword, IKeyword, type PackageKeywordData } from '../model';
 
-export interface KeywordData {
-  company: string;
-  keyword: string;
-  visibility: boolean;
-  popularTopic: string;
-  url: string;
-  sheetType: 'package' | 'dogmaru-exclude';
-}
+// API에서 사용하는 KeywordData는 PackageKeywordData의 부분 타입
+export type KeywordData = Partial<PackageKeywordData>;
 
 export const replaceAllKeywords = async (keywords: KeywordData[]) => {
   await connectDB();
@@ -72,25 +66,31 @@ export const upsertKeywords = async (keywords: KeywordData[]) => {
 
 export const getAllKeywords = async (): Promise<IKeyword[]> => {
   await connectDB();
-  return await Keyword.find().sort({ company: 1, keyword: 1 }).lean();
+  return await Keyword.find().sort({ company: 1, keyword: 1 });
 };
 
-export const getKeywordsByCompany = async (company: string): Promise<IKeyword[]> => {
+export const getKeywordsByCompany = async (
+  company: string
+): Promise<IKeyword[]> => {
   await connectDB();
-  return await Keyword.find({ company }).sort({ keyword: 1 }).lean();
+  return await Keyword.find({ company }).sort({ keyword: 1 });
 };
 
 export const updateKeywordVisibility = async (
   company: string,
   keyword: string,
-  visibility: boolean
-) => {
+  visibility: boolean,
+  sheetType?: 'package' | 'dogmaru-exclude'
+): Promise<IKeyword | null> => {
   await connectDB();
+  const filter: Record<string, unknown> = { company, keyword };
+  if (sheetType) filter.sheetType = sheetType;
+
   return await Keyword.findOneAndUpdate(
-    { company, keyword },
+    filter,
     { $set: { visibility, lastChecked: new Date() } },
     { new: true, upsert: true }
-  ).lean();
+  );
 };
 
 export const getVisibilityStats = async () => {

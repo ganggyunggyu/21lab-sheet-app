@@ -48,7 +48,7 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { company, keyword, visibility } = await request.json();
+    const { company, keyword, visibility, sheetType } = await request.json();
 
     if (!company || !keyword || typeof visibility !== 'boolean') {
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const result = await updateKeywordVisibility(company, keyword, visibility);
+    const result = await updateKeywordVisibility(company, keyword, visibility, sheetType);
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
