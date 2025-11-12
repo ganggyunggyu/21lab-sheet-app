@@ -40,7 +40,15 @@ export default function SheetPage() {
               Google Sheets Manager
             </h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/root-gunba')}
+              className="rounded bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
+            >
+              Root Gunba
+            </button>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 
