@@ -38,7 +38,8 @@ export const replaceAllRootKeywords = async (keywords: RootKeywordData[]) => {
 
 export const getAllRootKeywords = async (): Promise<IRootKeyword[]> => {
   await connectDB();
-  return await RootKeyword.find().sort({ company: 1, keyword: 1 });
+  // 삽입 순서 보장: 기본 _id 인덱스로 정렬 (메모리 초과 회피)
+  return await RootKeyword.find().sort({ _id: 1 });
 };
 
 export const getRootKeywordsByCompany = async (

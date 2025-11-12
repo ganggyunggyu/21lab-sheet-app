@@ -40,6 +40,8 @@ if (typeof window === 'undefined') {
   );
 
   RootKeywordSchema.index({ company: 1, keyword: 1 });
+  // Stable chronological scan for large sorts
+  RootKeywordSchema.index({ createdAt: 1, _id: 1 });
 
   RootKeyword =
     mongoose.models.RootKeyword ||

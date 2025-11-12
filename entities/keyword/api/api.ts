@@ -66,7 +66,8 @@ export const upsertKeywords = async (keywords: KeywordData[]) => {
 
 export const getAllKeywords = async (): Promise<IKeyword[]> => {
   await connectDB();
-  return await Keyword.find().sort({ company: 1, keyword: 1 });
+  // 삽입 순서 보장: 기본 _id 인덱스로 정렬 (메모리 초과 회피)
+  return await Keyword.find().sort({ _id: 1 });
 };
 
 export const getKeywordsByCompany = async (
