@@ -89,6 +89,29 @@ export const formatDateToKorean = (date: Date = new Date()): string => {
   return `${month}월${day}일`;
 };
 
+export const batchUpdateSheetData = async (
+  spreadsheetId: string,
+  updates: Array<{ range: string; values: string[][] }>,
+  sheetName?: string
+) => {
+  const sheets = getGoogleSheetsClient();
+
+  const data = updates.map((update) => ({
+    range: sheetName ? `${sheetName}!${update.range}` : update.range,
+    values: update.values,
+  }));
+
+  const response = await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      valueInputOption: 'USER_ENTERED',
+      data,
+    },
+  });
+
+  return response.data;
+};
+
 export const syncVisibilityToCompanySheet = async (
   spreadsheetId: string,
   keyword: string,
