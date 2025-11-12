@@ -8,7 +8,13 @@ export {
   getKeywordsByCompany,
   updateKeywordVisibility,
   getVisibilityStats,
+  replaceAllRootKeywords,
+  getAllRootKeywords,
+  getRootKeywordsByCompany,
+  updateRootKeywordVisibility,
+  getRootVisibilityStats,
 } from './api';
+
 export type { KeywordData } from './api';
 
 export { useKeywords, useKeywordsByCompany, useVisibilityStats, keywordQueryKeys } from './lib';
