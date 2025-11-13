@@ -9,10 +9,11 @@ import { useCompanyList } from '@/entities';
 const SHEET_ID = '1vrN5gvtokWxPs8CNaNcvZQLWyIMBOIcteYXQbyfiZl0';
 const SHEET_NAMES = {
   PACKAGE: '패키지',
+  DOGMARU: '도그마루',
   DOGMARU_EXCLUDE: '도그마루 제외',
 } as const;
 
-type MainTab = 'package' | 'dogmaru-exclude';
+type MainTab = 'package' | 'dogmaru' | 'dogmaru-exclude';
 
 interface KeywordData {
   company: string;
@@ -30,7 +31,11 @@ export default function Home() {
   const { companyList } = useCompanyList();
 
   const currentSheetName =
-    activeTab === 'package' ? SHEET_NAMES.PACKAGE : SHEET_NAMES.DOGMARU_EXCLUDE;
+    activeTab === 'package'
+      ? SHEET_NAMES.PACKAGE
+      : activeTab === 'dogmaru'
+      ? SHEET_NAMES.DOGMARU
+      : SHEET_NAMES.DOGMARU_EXCLUDE;
 
   const { data } = useSheetData(SHEET_ID, currentSheetName);
 
@@ -174,9 +179,29 @@ export default function Home() {
       const packageResult = await packageResponse.json();
       console.log('✅ 패키지 동기화 완료:', packageResult);
 
-      // 2. 도그마루 제외 동기화
+      // 2. 도그마루 동기화
+      toast.loading('도그마루 동기화 중...', { id: toastId });
+      const dogmaruSheetResponse = await fetch('/api/keywords/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sheetId: SHEET_ID,
+          sheetName: SHEET_NAMES.DOGMARU,
+          sheetType: 'dogmaru',
+        }),
+      });
+
+      if (!dogmaruSheetResponse.ok) {
+        const errorData = await dogmaruSheetResponse.json();
+        throw new Error(`도그마루 동기화 실패: ${errorData.error}`);
+      }
+
+      const dogmaruSheetResult = await dogmaruSheetResponse.json();
+      console.log('✅ 도그마루 동기화 완료:', dogmaruSheetResult);
+
+      // 3. 도그마루 제외 동기화
       toast.loading('도그마루 제외 동기화 중...', { id: toastId });
-      const dogmaruResponse = await fetch('/api/keywords/sync', {
+      const dogmaruExcludeResponse = await fetch('/api/keywords/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -186,20 +211,22 @@ export default function Home() {
         }),
       });
 
-      if (!dogmaruResponse.ok) {
-        const errorData = await dogmaruResponse.json();
+      if (!dogmaruExcludeResponse.ok) {
+        const errorData = await dogmaruExcludeResponse.json();
         throw new Error(`도그마루 제외 동기화 실패: ${errorData.error}`);
       }
 
-      const dogmaruResult = await dogmaruResponse.json();
-      console.log('✅ 도그마루 제외 동기화 완료:', dogmaruResult);
+      const dogmaruExcludeResult = await dogmaruExcludeResponse.json();
+      console.log('✅ 도그마루 제외 동기화 완료:', dogmaruExcludeResult);
 
       // 3. 결과 메시지
-      const totalDeleted = packageResult.deleted + dogmaruResult.deleted;
-      const totalInserted = packageResult.inserted + dogmaruResult.inserted;
+      const totalDeleted =
+        packageResult.deleted + dogmaruSheetResult.deleted + dogmaruExcludeResult.deleted;
+      const totalInserted =
+        packageResult.inserted + dogmaruSheetResult.inserted + dogmaruExcludeResult.inserted;
 
       toast.success(
-        `전체 동기화 완료! 패키지: ${packageResult.inserted}개, 도그마루 제외: ${dogmaruResult.inserted}개 (총 삭제: ${totalDeleted}, 총 삽입: ${totalInserted})`,
+        `전체 동기화 완료! 패키지: ${packageResult.inserted}개, 도그마루: ${dogmaruSheetResult.inserted}개, 도그마루 제외: ${dogmaruExcludeResult.inserted}개 (총 삭제: ${totalDeleted}, 총 삽입: ${totalInserted})`,
         { id: toastId, duration: 5000 }
       );
     } catch (error) {
@@ -572,6 +599,16 @@ export default function Home() {
               }`}
             >
               패키지
+            </button>
+            <button
+              onClick={() => handleTabChange('dogmaru')}
+              className={`rounded px-6 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'dogmaru'
+                  ? 'bg-blue-600 dark:bg-blue-500 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              도그마루
             </button>
             <button
               onClick={() => handleTabChange('dogmaru-exclude')}

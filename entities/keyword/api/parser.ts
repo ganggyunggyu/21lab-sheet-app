@@ -6,7 +6,7 @@ const CREDENTIALS_PATH = process.env.GOOGLE_APPLICATION_CREDENTIALS_PATH || '';
 export async function parseSheetData(
   sheetId: string,
   sheetName: string,
-  sheetType: 'package' | 'dogmaru-exclude'
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude'
 ): Promise<KeywordData[]> {
   const svcEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const svcKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');

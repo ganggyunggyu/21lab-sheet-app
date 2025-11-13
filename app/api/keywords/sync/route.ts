@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (sheetType !== 'package' && sheetType !== 'dogmaru-exclude') {
+    if (!['package', 'dogmaru', 'dogmaru-exclude'].includes(sheetType)) {
       return NextResponse.json(
-        { error: 'sheetType은 package 또는 dogmaru-exclude여야 합니다' },
+        { error: 'sheetType은 package | dogmaru | dogmaru-exclude 중 하나여야 합니다' },
         { status: 400 }
       );
     }

@@ -179,8 +179,8 @@ export async function POST(request: NextRequest) {
 
     const isAll = String(sheetName).toLowerCase() === 'all';
     if (isAll) {
-      // 패키지 → 도그마루 제외 순으로 DB를 순차 소비하여 1:1로 노출여부를 기록
-      const orderedTitles = ['패키지', '도그마루 제외'];
+      // 패키지 → 도그마루 → 도그마루 제외 순으로 DB를 순차 소비하여 1:1로 노출여부를 기록
+      const orderedTitles = ['패키지', '도그마루', '도그마루 제외'];
       const getColumnLetter = (colIndex: number): string => {
         let letter = '';
         let temp = colIndex + 1;

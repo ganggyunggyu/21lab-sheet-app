@@ -35,7 +35,7 @@ if (typeof window === 'undefined') {
       },
       sheetType: {
         type: String,
-        enum: ['package', 'dogmaru-exclude'],
+        enum: ['package', 'dogmaru', 'dogmaru-exclude'],
         required: true,
       },
       lastChecked: {
