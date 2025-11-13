@@ -104,6 +104,18 @@ export async function POST(request: NextRequest) {
       const updates: Array<{ range: string; values: string[][] }> = [];
       let currentCompany = '';
       let matchedCount = 0;
+      const getColumnLetter = (colIndex: number): string => {
+        let letter = '';
+        let temp = colIndex + 1;
+        while (temp > 0) {
+          const remainder = (temp - 1) % 26;
+          letter = String.fromCharCode(65 + remainder) + letter;
+          temp = Math.floor((temp - 1) / 26);
+        }
+        return letter;
+      };
+      const visibilityColumn = getColumnLetter(visibilityColumnIndex);
+      const appliedLogs: Array<{ row: number; keyword: string; value: string }> = [];
 
       console.log(`🔥 [${title}] 매칭 시작...`);
 
@@ -145,36 +157,32 @@ export async function POST(request: NextRequest) {
             )})`
           );
 
-          /* 시트 업데이트 주석처리 - 테스트용
-          const getColumnLetter = (colIndex: number): string => {
-            let letter = '';
-            let temp = colIndex + 1;
-            while (temp > 0) {
-              const remainder = (temp - 1) % 26;
-              letter = String.fromCharCode(65 + remainder) + letter;
-              temp = Math.floor((temp - 1) / 26);
-            }
-            return letter;
-          };
-
-          const visibilityColumn = getColumnLetter(visibilityColumnIndex);
           const rowNumber = idx + 2;
           updates.push({ range: `${visibilityColumn}${rowNumber}`, values: [[visibilityValue]] });
-          */
+          appliedLogs.push({ row: rowNumber, keyword, value: visibilityValue });
         }
       });
 
       console.log(`🔥 [${title}] 매칭 완료!`);
       console.log(`🔥 [${title}] 총 매칭된 키워드 수:`, matchedCount);
 
-      /* 시트 업데이트 주석처리 - 테스트용
+      let updatedCells = 0;
       if (updates.length > 0) {
-        await batchUpdateSheetData(sheetId, updates, title);
+        const res = await batchUpdateSheetData(sheetId, updates, title);
+        updatedCells = (res.totalUpdatedCells as number) || updates.length;
+        for (const log of appliedLogs) {
+          console.log(
+            `  ✅ [${title}] 행 ${log.row}: "${log.keyword}" → ${
+              log.value ? 'o' : '(공백)'
+            } 적용`
+          );
+        }
         console.log(`✅ [${title}] 시트 업데이트 완료!`);
+      } else {
+        console.log(`ℹ️ [${title}] 업데이트할 행 없음`);
       }
-      */
 
-      return { title, matched: matchedCount, skipped: false };
+      return { title, matched: matchedCount, updatedCells, skipped: false };
     };
 
     const isAll = String(sheetName).toLowerCase() === 'all';
@@ -324,12 +332,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 단일 시트 처리
+    // 단일 시트 처리 (실제 적용)
     const res = await processOneSheet(sheetName);
     return NextResponse.json({
       success: true,
-      updated: res.matched,
-      message: '테스트 완료 (콘솔 확인)',
+      updated: res.updatedCells,
+      results: [res],
     });
   } catch (error) {
     console.error('노출여부 불러오기 에러:', error);

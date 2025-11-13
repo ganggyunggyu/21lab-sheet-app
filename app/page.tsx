@@ -300,7 +300,7 @@ export default function Home() {
     }
   };
 
-  const handleImportFromDB = async () => {
+  const handleImportFromDB = async (mode: 'current' | 'all' = 'current') => {
     const toastId = toast.loading('노출현황 불러오는 중...');
 
     try {
@@ -309,7 +309,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sheetId: SHEET_ID,
-          sheetName: 'all',
+          sheetName: mode === 'all' ? 'all' : currentSheetName,
         }),
       });
 
@@ -319,8 +319,12 @@ export default function Home() {
       }
 
       const result = await response.json();
-
-      toast.success(`적용 완료! ${result.updated}개 셀 업데이트됨 (전체 탭)`, { id: toastId });
+      toast.success(
+        mode === 'all'
+          ? `적용 완료! ${result.updated}개 셀 업데이트됨 (전체 탭)`
+          : `적용 완료! ${result.updated}개 셀 업데이트됨 (현재 탭)`,
+        { id: toastId }
+      );
     } catch (error) {
       console.error('불러오기 에러:', error);
       toast.error(
@@ -696,10 +700,18 @@ export default function Home() {
               루트 업체명 제거
             </button>
             <button
-              onClick={handleImportFromDB}
-              className="rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              onClick={() => handleImportFromDB('current')}
+              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              title="현재 탭 노출현황 적용"
             >
-              노출현황 불러오기
+              노출현황(현재 탭)
+            </button>
+            <button
+              onClick={() => handleImportFromDB('all')}
+              className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+              title="전체 탭 노출현황 적용"
+            >
+              전체 노출현황
             </button>
             <div
               className="relative"
@@ -774,7 +786,7 @@ export default function Home() {
             <button
               onClick={handleSyncAllToDB}
               disabled={isSyncing}
-              className="hidden rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
+              className="rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
             >
               {isSyncing ? '동기화 중...' : '전체 내보내기'}
             </button>
