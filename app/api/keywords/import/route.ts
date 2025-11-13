@@ -291,22 +291,23 @@ export async function POST(request: NextRequest) {
           localRows++;
         });
 
-        // 테스트 모드: 시트 미적용, 로그만 출력
+        // 실제 적용: 시트 배치 업데이트 수행
         let updatedCells = 0;
         if (updates.length > 0) {
+          const res = await batchUpdateSheetData(sheetId, updates, title);
+          updatedCells = (res.totalUpdatedCells as number) || updates.length;
           for (const log of appliedLogs) {
             console.log(
-              `  ${log.value ? '✅' : '❌'} [${title}] 행 ${log.row}: "${
-                log.keyword
-              }" → ${log.value ? 'o' : '(공백)'} 적용(테스트)`
+              `  ✅ [${title}] 행 ${log.row}: "${log.keyword}" → ${
+                log.value ? 'o' : '(공백)'
+              } 적용`
             );
           }
-          updatedCells = updates.length;
           console.log(
-            `🧪 [${title}] 시뮬레이션 완료: ${updatedCells} cells, rows=${localRows}`
+            `✅ [${title}] 업데이트 완료: ${updatedCells} cells, rows=${localRows}`
           );
         } else {
-          console.log(`ℹ️ [${title}] 업데이트할 행 없음(테스트)`);
+          console.log(`ℹ️ [${title}] 업데이트할 행 없음`);
         }
 
         results.push({ title, updatedCells, rowUpdates: localRows });

@@ -233,7 +233,7 @@ export default function Home() {
 
       const result = await response.json();
 
-      toast.success(`테스트 완료! ${result.updated}개 행 적용 미리보기 (전체 탭)`, { id: toastId });
+      toast.success(`적용 완료! ${result.updated}개 셀 업데이트됨 (전체 탭)`, { id: toastId });
     } catch (error) {
       console.error('불러오기 에러:', error);
       toast.error(
