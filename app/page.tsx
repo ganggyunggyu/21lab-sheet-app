@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { SheetTable, ThemeToggle, useSheetData } from '@/features';
+import { ChevronDown } from 'lucide-react';
 import { useCompanyList } from '@/entities';
 
 const SHEET_ID = '1vrN5gvtokWxPs8CNaNcvZQLWyIMBOIcteYXQbyfiZl0';
@@ -28,6 +29,7 @@ export default function Home() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<MainTab>('package');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const { companyList } = useCompanyList();
 
   const currentSheetName =
@@ -115,6 +117,17 @@ export default function Home() {
 
   const handleCompanyClick = (companySheetId: string) => {
     router.push(`/sheets/${companySheetId}`);
+  };
+
+  const handleExportChoice = async (
+    which: 'current' | 'all' | 'package' | 'dogmaru' | 'dogmaru-exclude'
+  ) => {
+    setIsExportOpen(false);
+    if (which === 'current') return handleSyncToDB();
+    if (which === 'all') return handleSyncAllToDB();
+    if (which === 'package') return handleSyncSpecific('package');
+    if (which === 'dogmaru') return handleSyncSpecific('dogmaru');
+    if (which === 'dogmaru-exclude') return handleSyncSpecific('dogmaru-exclude');
   };
 
   const handleSyncToDB = async () => {
@@ -688,17 +701,80 @@ export default function Home() {
             >
               노출현황 불러오기
             </button>
+            <div
+              className="relative"
+              tabIndex={0}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setIsExportOpen(false);
+                }
+              }}
+            >
+              <button
+                onClick={() => setIsExportOpen((v) => !v)}
+                disabled={isSyncing}
+                className="inline-flex items-center gap-1 rounded bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600"
+                aria-expanded={isExportOpen}
+                aria-haspopup="menu"
+              >
+                내보내기
+                <ChevronDown size={16} />
+              </button>
+              {isExportOpen && (
+                <div
+                  className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
+                  role="menu"
+                >
+                  <button
+                    onClick={() => handleExportChoice('current')}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    현재 탭 내보내기
+                  </button>
+                  <button
+                    onClick={() => handleExportChoice('all')}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    전체 내보내기
+                  </button>
+                  <div className="h-px bg-gray-200 dark:bg-gray-700" />
+                  <button
+                    onClick={() => handleExportChoice('package')}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    패키지만
+                  </button>
+                  <button
+                    onClick={() => handleExportChoice('dogmaru')}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    도그마루만
+                  </button>
+                  <button
+                    onClick={() => handleExportChoice('dogmaru-exclude')}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    도그마루 제외만
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               onClick={handleSyncToDB}
               disabled={isSyncing}
-              className="rounded bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600"
+              className="hidden rounded bg-green-600 px-6 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-green-500 dark:hover:bg-green-600"
             >
               {isSyncing ? '동기화 중...' : '내보내기'}
             </button>
             <button
               onClick={handleSyncAllToDB}
               disabled={isSyncing}
-              className="rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
+              className="hidden rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
             >
               {isSyncing ? '동기화 중...' : '전체 내보내기'}
             </button>
@@ -707,7 +783,7 @@ export default function Home() {
             <button
               onClick={() => handleSyncSpecific('package')}
               disabled={isSyncing}
-              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="hidden rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
               title="패키지만 내보내기"
             >
               패키지만
@@ -715,7 +791,7 @@ export default function Home() {
             <button
               onClick={() => handleSyncSpecific('dogmaru')}
               disabled={isSyncing}
-              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="hidden rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
               title="도그마루만 내보내기"
             >
               도그마루만
@@ -723,7 +799,7 @@ export default function Home() {
             <button
               onClick={() => handleSyncSpecific('dogmaru-exclude')}
               disabled={isSyncing}
-              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="hidden rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
               title="도그마루 제외만 내보내기"
             >
               도그마루 제외만
