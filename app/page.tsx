@@ -30,6 +30,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<MainTab>('package');
   const [isSyncing, setIsSyncing] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isRootOpen, setIsRootOpen] = useState(false);
   const { companyList } = useCompanyList();
 
   const currentSheetName =
@@ -687,18 +688,46 @@ export default function Home() {
           </div>
 
           <div className="flex gap-2">
-            <button
-              onClick={handleMatchRootCompany}
-              className="rounded bg-orange-600 px-6 py-2 text-sm font-medium text-white hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600"
+            <div
+              className="relative"
+              tabIndex={0}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setIsRootOpen(false);
+                }
+              }}
             >
-              루트 업체명 적용
-            </button>
-            <button
-              onClick={handleRemoveRootCompany}
-              className="rounded bg-red-600 px-6 py-2 text-sm font-medium text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-            >
-              루트 업체명 제거
-            </button>
+              <button
+                onClick={() => setIsRootOpen((v) => !v)}
+                className="inline-flex items-center gap-1 rounded bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600"
+                aria-expanded={isRootOpen}
+                aria-haspopup="menu"
+              >
+                루트
+                <ChevronDown size={16} />
+              </button>
+              {isRootOpen && (
+                <div
+                  className="absolute left-0 z-20 mt-2 w-40 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
+                  role="menu"
+                >
+                  <button
+                    onClick={handleMatchRootCompany}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    업체명 적용
+                  </button>
+                  <button
+                    onClick={handleRemoveRootCompany}
+                    className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    role="menuitem"
+                  >
+                    업체명 제거
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => handleImportFromDB('current')}
               className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
