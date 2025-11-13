@@ -240,6 +240,53 @@ export default function Home() {
     }
   };
 
+  const getSheetNameByType = (type: MainTab) => {
+    switch (type) {
+      case 'package':
+        return SHEET_NAMES.PACKAGE;
+      case 'dogmaru':
+        return SHEET_NAMES.DOGMARU;
+      case 'dogmaru-exclude':
+        return SHEET_NAMES.DOGMARU_EXCLUDE;
+      default:
+        return SHEET_NAMES.PACKAGE;
+    }
+  };
+
+  const handleSyncSpecific = async (type: MainTab) => {
+    setIsSyncing(true);
+    const label = type === 'package' ? '패키지' : type === 'dogmaru' ? '도그마루' : '도그마루 제외';
+    const toastId = toast.loading(`${label} 내보내기 중...`);
+
+    try {
+      const response = await fetch('/api/keywords/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sheetId: SHEET_ID,
+          sheetName: getSheetNameByType(type),
+          sheetType: type,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`${label} 내보내기 실패: ${errorData.error || '알 수 없는 오류'}`);
+      }
+
+      const result = await response.json();
+      toast.success(
+        `${label} 내보내기 완료! 삭제: ${result.deleted}, 삽입: ${result.inserted}`,
+        { id: toastId }
+      );
+    } catch (error) {
+      console.error(`${label} 내보내기 에러:`, error);
+      toast.error(error instanceof Error ? error.message : `${label} 내보내기에 실패했습니다`, { id: toastId });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const handleImportFromDB = async () => {
     const toastId = toast.loading('노출현황 불러오는 중...');
 
@@ -654,6 +701,32 @@ export default function Home() {
               className="rounded bg-purple-600 px-6 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-purple-500 dark:hover:bg-purple-600"
             >
               {isSyncing ? '동기화 중...' : '전체 내보내기'}
+            </button>
+
+            {/* 개별 시트 내보내기 */}
+            <button
+              onClick={() => handleSyncSpecific('package')}
+              disabled={isSyncing}
+              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              title="패키지만 내보내기"
+            >
+              패키지만
+            </button>
+            <button
+              onClick={() => handleSyncSpecific('dogmaru')}
+              disabled={isSyncing}
+              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              title="도그마루만 내보내기"
+            >
+              도그마루만
+            </button>
+            <button
+              onClick={() => handleSyncSpecific('dogmaru-exclude')}
+              disabled={isSyncing}
+              className="rounded bg-gray-200 dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              title="도그마루 제외만 내보내기"
+            >
+              도그마루 제외만
             </button>
           </div>
         </div>
