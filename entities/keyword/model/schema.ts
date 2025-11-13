@@ -6,8 +6,10 @@ export interface IKeyword extends Document {
   visibility: boolean;
   popularTopic: string;
   url: string;
-  sheetType: 'package' | 'dogmaru-exclude';
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude';
   lastChecked: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 let Keyword: Model<IKeyword>;
@@ -16,7 +18,7 @@ if (typeof window === 'undefined') {
   // In dev/hot-reload environments, ensure schema updates take effect
   try {
     if (mongoose.connection?.models?.Keyword) {
-      delete mongoose.connection.models.Keyword;
+      delete (mongoose.connection.models as any).Keyword;
     }
   } catch {}
 

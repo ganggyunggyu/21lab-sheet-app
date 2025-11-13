@@ -22,7 +22,7 @@ interface KeywordData {
   visibility: boolean;
   popularTopic: string;
   url: string;
-  sheetType: 'package' | 'dogmaru-exclude';
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude';
 }
 
 export default function Home() {
