@@ -13,6 +13,13 @@ export interface IKeyword extends Document {
 let Keyword: Model<IKeyword>;
 
 if (typeof window === 'undefined') {
+  // In dev/hot-reload environments, ensure schema updates take effect
+  try {
+    if (mongoose.connection?.models?.Keyword) {
+      delete mongoose.connection.models.Keyword;
+    }
+  } catch {}
+
   const KeywordSchema = new Schema<IKeyword>(
     {
       company: {
