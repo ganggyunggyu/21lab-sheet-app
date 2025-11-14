@@ -1,24 +1,21 @@
 import axios from 'axios';
 
-export const api = axios.create({
+export const apiClient = axios.create({
   baseURL: '/api',
-  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-api.interceptors.request.use(
+apiClient.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
-  (response) => response.data,
+apiClient.interceptors.response.use(
+  (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      console.error('인증 오류 발생');
-    }
-    return Promise.reject(error);
+    const message = error.response?.data?.error || error.message;
+    return Promise.reject(new Error(message));
   }
 );
