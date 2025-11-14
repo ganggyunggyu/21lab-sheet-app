@@ -4,43 +4,19 @@ import { Keyword, IKeyword, type PackageKeywordData } from '../model';
 // API에서 사용하는 KeywordData는 PackageKeywordData의 부분 타입
 export type KeywordData = Partial<PackageKeywordData>;
 
-export const replaceAllKeywords = async (keywords: KeywordData[]) => {
+export const replaceAllKeywords = async (
+  keywords: KeywordData[],
+  sheetType: string
+) => {
   await connectDB();
 
-  if (keywords.length === 0) {
-    return {
-      deleted: 0,
-      inserted: 0,
-    };
-  }
+  const deleteResult = await Keyword.deleteMany({ sheetType: sheetType });
 
-  const sheetType = keywords[0].sheetType;
-
-  console.log('🔥 삭제 대상 sheetType:', sheetType);
-  console.log('🔥 삭제 전 전체 개수:', await Keyword.countDocuments());
-  console.log('🔥 삭제 대상 개수:', await Keyword.countDocuments({ sheetType }));
-
-  const deleteResult = await Keyword.deleteMany({ sheetType });
-
-  console.log('🔥 삭제된 개수:', deleteResult.deletedCount);
-  console.log('🔥 삭제 후 전체 개수:', await Keyword.countDocuments());
-
-  const dataToInsert = keywords.map((kw) => ({
-    ...kw,
-    lastChecked: new Date(),
-  }));
-
-  console.log('🔥 삽입할 데이터 샘플:', dataToInsert.slice(0, 2));
-  console.log('🔥 스키마 필드:', Object.keys(Keyword.schema.obj));
-
-  const insertResult = await Keyword.insertMany(dataToInsert);
-
-  console.log('🔥 삽입된 개수:', insertResult.length);
-  console.log('🔥 삽입된 데이터 샘플:', insertResult.slice(0, 2).map(doc => doc.toObject()));
+  const updateResult = await Keyword.insertMany(keywords);
 
   return {
     deleted: deleteResult.deletedCount,
-    inserted: insertResult.length,
+    inserted: updateResult.length,
   };
 };
 
@@ -66,8 +42,10 @@ export const upsertKeywords = async (keywords: KeywordData[]) => {
 
 export const getAllKeywords = async (): Promise<IKeyword[]> => {
   await connectDB();
-  // 삽입 순서 보장: 기본 _id 인덱스로 정렬 (메모리 초과 회피)
-  return await Keyword.find().sort({ _id: 1 });
+
+  const keywords = await Keyword.find();
+
+  return keywords;
 };
 
 export const getKeywordsByCompany = async (

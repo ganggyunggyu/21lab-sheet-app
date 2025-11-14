@@ -1,4 +1,4 @@
-import { api } from '@/shared';
+import { apiClient } from '@/shared';
 
 export interface SheetData {
   data: string[][];
@@ -54,7 +54,8 @@ export const fetchSheetData = async (
   const url = sheetName
     ? `/sheets/${sheetId}?sheetName=${encodeURIComponent(sheetName)}`
     : `/sheets/${sheetId}`;
-  return api.get(url);
+  const { data } = await apiClient.get(url);
+  return data;
 };
 
 export const addSheetRow = async ({
@@ -62,11 +63,12 @@ export const addSheetRow = async ({
   values,
   sheetName,
 }: AddSheetRowParams): Promise<SheetData> => {
-  return api.post(`/sheets/${sheetId}`, {
+  const { data } = await apiClient.post(`/sheets/${sheetId}`, {
     range: 'A:ZZ',
     values,
     sheetName,
   });
+  return data;
 };
 
 export const updateSheetRow = async ({
@@ -75,22 +77,27 @@ export const updateSheetRow = async ({
   values,
   sheetName,
 }: UpdateSheetRowParams): Promise<SheetData> => {
-  return api.patch(`/sheets/${sheetId}`, {
+  const { data } = await apiClient.patch(`/sheets/${sheetId}`, {
     range,
     values,
     sheetName,
   });
+  return data;
 };
 
 export const fetchSpreadsheetMetadata = async (
   sheetId: string
 ): Promise<SpreadsheetMetadata> => {
-  return api.get(`/sheets/${sheetId}/metadata`);
+  const { data } = await apiClient.get(`/sheets/${sheetId}/metadata`);
+  return data;
 };
 
 export const syncVisibility = async ({
   sheetId,
   keyword,
 }: SyncVisibilityParams): Promise<SyncResponse> => {
-  return api.post(`/sheets/${sheetId}/sync`, { keyword });
+  const { data } = await apiClient.post(`/sheets/${sheetId}/sync`, {
+    keyword,
+  });
+  return data;
 };
