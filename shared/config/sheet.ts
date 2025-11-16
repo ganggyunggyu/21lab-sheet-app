@@ -1,7 +1,7 @@
 // Google Sheets 관련 상수
 
 // 원본 시트 설정
-const PRODUCTION_CONFIG = {
+export const PRODUCTION_CONFIG = {
   SHEET_ID: '1vrN5gvtokWxPs8CNaNcvZQLWyIMBOIcteYXQbyfiZl0',
   SHEET_NAMES: {
     PACKAGE: '패키지',
@@ -16,7 +16,7 @@ const PRODUCTION_CONFIG = {
 } as const;
 
 // 테스트용 사본 시트 설정
-const TEST_CONFIG = {
+export const TEST_CONFIG = {
   SHEET_ID: '1T9PHu-fH6HPmyYA9dtfXaDLm20XAPN-9mzlE2QTPkF0',
   SHEET_NAMES: {
     PACKAGE: '패키지 노출체크 프로그램',

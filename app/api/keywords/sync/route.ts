@@ -5,7 +5,6 @@ import { parseSheetData } from '@/entities/keyword/api/parser';
 export async function POST(request: NextRequest) {
   try {
     const { sheetId, sheetName, sheetType } = await request.json();
-    console.log(sheetType);
     const keywords = await parseSheetData(sheetId, sheetName, sheetType);
 
     const result = await replaceAllKeywords(keywords, sheetType);

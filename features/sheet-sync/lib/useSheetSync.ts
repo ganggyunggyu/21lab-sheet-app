@@ -6,6 +6,7 @@ import {
   isExportOpenAtom,
 } from '@/shared/model/sheet.store';
 import {
+  PRODUCTION_CONFIG,
   SHEET_ID,
   SHEET_NAMES,
   getSheetNameByType,
@@ -32,7 +33,7 @@ export const useSheetSync = () => {
 
     try {
       await syncMutation.mutateAsync({
-        sheetId: SHEET_ID,
+        sheetId: PRODUCTION_CONFIG.SHEET_ID,
         sheetName: currentSheetName,
         sheetType: activeTab,
       });
@@ -51,18 +52,18 @@ export const useSheetSync = () => {
     try {
       const requests = [
         {
-          sheetId: SHEET_ID,
-          sheetName: SHEET_NAMES.PACKAGE,
+          sheetId: PRODUCTION_CONFIG.SHEET_ID,
+          sheetName: PRODUCTION_CONFIG.SHEET_NAMES.PACKAGE,
           sheetType: 'package' as MainTab,
         },
         {
-          sheetId: SHEET_ID,
-          sheetName: SHEET_NAMES.DOGMARU_EXCLUDE,
+          sheetId: PRODUCTION_CONFIG.SHEET_ID,
+          sheetName: PRODUCTION_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
           sheetType: 'dogmaru-exclude' as MainTab,
         },
         {
-          sheetId: SHEET_ID,
-          sheetName: SHEET_NAMES.DOGMARU,
+          sheetId: PRODUCTION_CONFIG.SHEET_ID,
+          sheetName: PRODUCTION_CONFIG.SHEET_NAMES.DOGMARU,
           sheetType: 'dogmaru' as MainTab,
         },
       ];
