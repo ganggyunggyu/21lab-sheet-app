@@ -17,10 +17,11 @@ export const getSheetData = async (
   sheetName?: string,
   range = 'A:ZZ'
 ) => {
+  if (!sheetName) return;
   const sheets = getGoogleSheetsClient();
 
   const fullRange = sheetName ? `${sheetName}!${range}` : range;
-
+  console.log(sheetName);
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: fullRange,
@@ -77,10 +78,12 @@ export const getSpreadsheetMetadata = async (spreadsheetId: string) => {
     fields: 'sheets.properties',
   });
 
-  return response.data.sheets?.map((sheet) => ({
-    title: sheet.properties?.title || '',
-    sheetId: sheet.properties?.sheetId || 0,
-  })) || [];
+  return (
+    response.data.sheets?.map((sheet) => ({
+      title: sheet.properties?.title || '',
+      sheetId: sheet.properties?.sheetId || 0,
+    })) || []
+  );
 };
 
 export const formatDateToKorean = (date: Date = new Date()): string => {
@@ -165,7 +168,9 @@ export const syncVisibilityToCompanySheet = async (
       continue;
     }
 
-    const targetCell = `${tabName}!${String.fromCharCode(65 + dateColIndex)}${keywordRowIndex + 1}`;
+    const targetCell = `${tabName}!${String.fromCharCode(65 + dateColIndex)}${
+      keywordRowIndex + 1
+    }`;
 
     await sheets.spreadsheets.values.update({
       spreadsheetId,
@@ -179,7 +184,9 @@ export const syncVisibilityToCompanySheet = async (
     results.push({
       tab: tabName,
       success: true,
-      message: `업데이트 성공! (행: ${keywordRowIndex + 1}, 컬럼: ${String.fromCharCode(65 + dateColIndex)})`,
+      message: `업데이트 성공! (행: ${
+        keywordRowIndex + 1
+      }, 컬럼: ${String.fromCharCode(65 + dateColIndex)})`,
     });
   }
 

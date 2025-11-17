@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSheetData, appendSheetData, updateSheetData } from '@/lib/google-sheets';
+import {
+  getSheetData,
+  appendSheetData,
+  updateSheetData,
+} from '@/lib/google-sheets';
 
 export async function GET(
   request: NextRequest,
