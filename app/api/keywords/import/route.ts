@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllKeywords } from '@/entities/keyword';
+import { getAllKeywords, Keyword } from '@/entities/keyword';
 import {
   getSheetData,
   batchUpdateSheetData,
   getSpreadsheetMetadata,
 } from '@/lib/google-sheets';
+import { connectDB } from '@/shared';
+import { getKeywordBySheetType } from '@/entities/keyword/api/api';
 
 type SheetRow = string[];
 type SheetUpdate = { range: string; values: string[][] };
@@ -477,14 +479,94 @@ const processAllSheetsSequential = async (params: {
   };
 };
 
+// 🔥 새로운 테스트 로직: DB 데이터 전체를 시트에 재작성
+const processFullRewrite = async (params: {
+  sheetId: string;
+  sheetName: string;
+  sheetType: string;
+}) => {
+  const { sheetId, sheetName, sheetType } = params;
+
+  const dbKeywords = await getKeywordBySheetType(sheetType);
+
+  console.log(dbKeywords.length);
+
+  if (dbKeywords.length === 0) {
+    return {
+      title: sheetName,
+      totalRows: 0,
+      updatedCells: 0,
+      message: 'DB에 데이터가 없습니다',
+    };
+  }
+
+  // 헤더 + 데이터 행 생성
+  const headers = [['업체명', '키워드', '노출여부', '링크']];
+  const dataRows = dbKeywords.map((kw) => [
+    kw.company || '',
+    kw.keyword || '',
+    kw.visibility ? 'o' : '',
+    kw.url || '',
+  ]);
+
+  const allRows = [...headers, ...dataRows];
+
+  // 시트 전체 재작성 (A1부터 시작)
+  const range = `A1`;
+  const updates: SheetUpdate[] = [
+    {
+      range,
+      values: allRows,
+    },
+  ];
+
+  const res = await batchUpdateSheetData(sheetId, updates, sheetName);
+  const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 3;
+
+  console.log(
+    `✅ [${sheetName}] 전체 재작성 완료! (${dbKeywords.length}개 행, ${updatedCells} cells)`
+  );
+
+  return {
+    title: sheetName,
+    totalRows: dbKeywords.length,
+    updatedCells,
+    message: '전체 재작성 완료',
+  };
+};
+
 export async function POST(request: NextRequest) {
   try {
-    const { sheetId, sheetName, sheetType } = await request.json();
-
-    const dbKeywords = await getAllKeywords();
-    const latestMap = buildLatestKeywordMap(dbKeywords);
+    const {
+      sheetId,
+      sheetName,
+      mode = 'update',
+      sheetType,
+    } = await request.json();
 
     const isAll = String(sheetName).toLowerCase() === 'all';
+
+    // 🔥 테스트 모드: 전체 재작성
+
+    console.log(sheetId, sheetName, sheetType);
+    if (mode === 'rewrite') {
+      console.log('[REWRITE MODE] 전체 재작성 시작...');
+      const result = await processFullRewrite({
+        sheetId,
+        sheetName,
+        sheetType,
+      });
+      return NextResponse.json({
+        success: true,
+        mode: 'rewrite',
+        ...result,
+      });
+    }
+
+    // 기존 로직: 노출여부만 업데이트
+    console.log('📝 [UPDATE MODE] 노출여부 업데이트 시작...');
+    const dbKeywords = await getAllKeywords();
+    const latestMap = buildLatestKeywordMap(dbKeywords);
 
     if (isAll) {
       const { errorResponse, results, totalUpdated } =
@@ -499,6 +581,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
+        mode: 'update',
         updated: totalUpdated,
         results,
       });
@@ -512,6 +595,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      mode: 'update',
       updated: res.updatedCells,
       results: [res],
     });

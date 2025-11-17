@@ -7,6 +7,7 @@ import {
   isImportOpenAtom,
   isExportOpenAtom,
   isSyncingAtom,
+  importModeAtom,
 } from '@/shared/model/sheet.store';
 import { useSheetSync, useRootKeywords } from '../lib';
 
@@ -15,13 +16,30 @@ export const SheetActions = () => {
   const [isImportOpen, setIsImportOpen] = useAtom(isImportOpenAtom);
   const [isExportOpen, setIsExportOpen] = useAtom(isExportOpenAtom);
   const [isSyncing] = useAtom(isSyncingAtom);
+  const [importMode, setImportMode] = useAtom(importModeAtom);
 
   const { handleImportFromDB, handleExportChoice } = useSheetSync();
-  const { handleMatchRootCompany, handleRemoveRootCompany } =
-    useRootKeywords();
+  const { handleMatchRootCompany, handleRemoveRootCompany } = useRootKeywords();
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          테스트:
+        </span>
+        <button
+          onClick={() =>
+            setImportMode(importMode === 'update' ? 'rewrite' : 'update')
+          }
+          className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
+            importMode === 'update'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-600'
+          }`}
+        >
+          {importMode === 'update' ? '노출여부만' : '전체재작성'}
+        </button>
+      </div>
       {/* 루트 드롭다운 */}
       <div
         className="relative"

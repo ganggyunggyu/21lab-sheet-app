@@ -48,6 +48,14 @@ export const getAllKeywords = async (): Promise<IKeyword[]> => {
   return keywords;
 };
 
+export const getKeywordBySheetType = async (sheetType: string) => {
+  console.log(`[getKeywordBySheetType] sheetType: ${sheetType} 조회 시작`);
+  await connectDB();
+  const keywords = await Keyword.find({ sheetType: sheetType });
+  console.log(`[getKeywordBySheetType] ${keywords.length}개 키워드 조회 완료`);
+  return keywords;
+};
+
 export const getKeywordsByCompany = async (
   company: string
 ): Promise<IKeyword[]> => {
@@ -59,7 +67,7 @@ export const updateKeywordVisibility = async (
   company: string,
   keyword: string,
   visibility: boolean,
-  sheetType?: 'package' | 'dogmaru-exclude'
+  sheetType?: 'package' | 'dogmaru-exclude' | 'dogmaru'
 ): Promise<IKeyword | null> => {
   await connectDB();
   const filter: Record<string, unknown> = { company, keyword };
