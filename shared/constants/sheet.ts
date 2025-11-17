@@ -1,6 +1,3 @@
-// Google Sheets 관련 상수
-
-// 원본 시트 설정
 export const PRODUCTION_CONFIG = {
   SHEET_ID: '1vrN5gvtokWxPs8CNaNcvZQLWyIMBOIcteYXQbyfiZl0',
   SHEET_NAMES: {
@@ -15,7 +12,6 @@ export const PRODUCTION_CONFIG = {
   },
 } as const;
 
-// 테스트용 사본 시트 설정
 export const TEST_CONFIG = {
   SHEET_ID: '1T9PHu-fH6HPmyYA9dtfXaDLm20XAPN-9mzlE2QTPkF0',
   SHEET_NAMES: {
@@ -30,15 +26,7 @@ export const TEST_CONFIG = {
   },
 } as const;
 
-// 환경변수로 테스트 모드 제어 (기본값: false = 원본)
-const USE_TEST_SHEET =
-  process.env.NEXT_PUBLIC_USE_TEST_SHEET === 'true' || true; // TODO: true를 false로 변경하면 원본 사용
-
 const currentConfig = TEST_CONFIG;
-
-export const SHEET_ID = currentConfig.SHEET_ID;
-export const SHEET_NAMES = currentConfig.SHEET_NAMES;
-export const SHEET_LABELS = currentConfig.LABELS;
 
 export type MainTab = 'package' | 'dogmaru' | 'dogmaru-exclude';
 
@@ -54,23 +42,23 @@ export interface KeywordData {
 export const getSheetNameByType = (type: MainTab): string => {
   switch (type) {
     case 'package':
-      return SHEET_NAMES.PACKAGE;
+      return PRODUCTION_CONFIG.SHEET_NAMES.PACKAGE;
     case 'dogmaru':
-      return SHEET_NAMES.DOGMARU;
+      return PRODUCTION_CONFIG.SHEET_NAMES.DOGMARU;
     case 'dogmaru-exclude':
-      return SHEET_NAMES.DOGMARU_EXCLUDE;
+      return PRODUCTION_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE;
     default:
-      return SHEET_NAMES.PACKAGE;
+      return PRODUCTION_CONFIG.SHEET_NAMES.PACKAGE;
   }
 };
 
 export const getTabLabel = (type: MainTab): string => {
   switch (type) {
     case 'package':
-      return SHEET_LABELS.PACKAGE;
+      return PRODUCTION_CONFIG.LABELS.PACKAGE;
     case 'dogmaru':
-      return SHEET_LABELS.DOGMARU;
+      return PRODUCTION_CONFIG.LABELS.DOGMARU;
     case 'dogmaru-exclude':
-      return SHEET_LABELS.DOGMARU_EXCLUDE;
+      return PRODUCTION_CONFIG.LABELS.DOGMARU_EXCLUDE;
   }
 };

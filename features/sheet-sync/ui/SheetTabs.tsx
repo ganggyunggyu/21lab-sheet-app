@@ -2,7 +2,7 @@
 
 import { useAtom } from 'jotai';
 import { activeTabAtom } from '@/shared/model/sheet.store';
-import { getTabLabel, type MainTab } from '@/shared/config/sheet';
+import { getTabLabel, type MainTab } from '@/shared/constants/sheet';
 
 const tabs: MainTab[] = ['package', 'dogmaru-exclude', 'dogmaru'];
 

@@ -9,7 +9,10 @@ import {
   CompanyList,
 } from '@/features/sheet-sync';
 import { activeTabAtom } from '@/shared/model/sheet.store';
-import { SHEET_ID, getSheetNameByType } from '@/shared/config/sheet';
+import {
+  PRODUCTION_CONFIG,
+  getSheetNameByType,
+} from '@/shared/constants/sheet';
 
 export default function Home() {
   const [activeTab] = useAtom(activeTabAtom);
@@ -28,7 +31,7 @@ export default function Home() {
         <CompanyList />
 
         <SheetTable
-          sheetId={SHEET_ID}
+          sheetId={PRODUCTION_CONFIG.SHEET_ID}
           sheetName={currentSheetName}
           showNavigation={true}
         />

@@ -4,21 +4,22 @@ import {
   activeTabAtom,
   isSyncingAtom,
   isExportOpenAtom,
+  importModeAtom,
 } from '@/shared/model/sheet.store';
 import {
   PRODUCTION_CONFIG,
-  SHEET_ID,
-  SHEET_NAMES,
+  TEST_CONFIG,
   getSheetNameByType,
   getTabLabel,
   type MainTab,
-} from '@/shared/config/sheet';
+} from '@/shared/constants/sheet';
 import { useSyncToDB, useImportFromDB } from '../api/mutations';
 
 export const useSheetSync = () => {
   const [activeTab] = useAtom(activeTabAtom);
   const [_, setIsSyncing] = useAtom(isSyncingAtom);
   const setIsExportOpen = useSetAtom(isExportOpenAtom);
+  const [importMode] = useAtom(importModeAtom); // 🔥 테스트 모드
 
   const syncMutation = useSyncToDB();
 
@@ -44,7 +45,7 @@ export const useSheetSync = () => {
       setIsSyncing(false);
     }
   };
-
+  // 전체 탭 동기화
   const handleSyncAllToDB = async () => {
     setIsSyncing(true);
     const toastId = toast.loading('전체 시트 동기화 중...');
@@ -87,7 +88,7 @@ export const useSheetSync = () => {
 
     try {
       await syncMutation.mutateAsync({
-        sheetId: SHEET_ID,
+        sheetId: PRODUCTION_CONFIG.SHEET_ID,
         sheetName: getSheetNameByType(type),
         sheetType: type,
       });
@@ -99,15 +100,37 @@ export const useSheetSync = () => {
     }
   };
 
-  // 노출현황 불러오기
+  // 노출현황 전체 불러오기
   const handleImportFromDB = async (mode: 'current' | 'all' = 'current') => {
-    const toastId = toast.loading('노출현황 불러오는 중...');
+    const requests = [
+      {
+        sheetId: TEST_CONFIG.SHEET_ID,
+        sheetName: TEST_CONFIG.SHEET_NAMES.PACKAGE,
+        sheetType: 'package' as MainTab,
+        mode: importMode, // 🔥 현재 선택된 모드 전달
+      },
+      {
+        sheetId: TEST_CONFIG.SHEET_ID,
+        sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
+        sheetType: 'dogmaru-exclude' as MainTab,
+        mode: importMode, // 🔥 현재 선택된 모드 전달
+      },
+      {
+        sheetId: TEST_CONFIG.SHEET_ID,
+        sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU,
+        sheetType: 'dogmaru' as MainTab,
+        mode: importMode, // 🔥 현재 선택된 모드 전달
+      },
+    ];
+
+    const modeText =
+      importMode === 'rewrite' ? '전체 재작성 중' : '노출현황 불러오는 중';
+    const toastId = toast.loading(modeText);
 
     try {
-      await importMutation.mutateAsync({
-        sheetId: SHEET_ID,
-        sheetName: mode === 'all' ? 'all' : currentSheetName,
-      });
+      await importMutation.mutateAsync(requests[0]);
+      await importMutation.mutateAsync(requests[1]);
+      await importMutation.mutateAsync(requests[2]);
       toast.dismiss(toastId);
     } catch (error) {
       toast.dismiss(toastId);

@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import type { MainTab } from '../config/sheet';
+import type { MainTab } from '../constants/sheet';
 
 // 현재 활성 탭
 export const activeTabAtom = atom<MainTab>('package');
@@ -11,3 +11,7 @@ export const isSyncingAtom = atom(false);
 export const isExportOpenAtom = atom(false);
 export const isRootOpenAtom = atom(false);
 export const isImportOpenAtom = atom(false);
+
+// 🔥 테스트: 노출현황 적용 모드
+export type ImportMode = 'update' | 'rewrite';
+export const importModeAtom = atom<ImportMode>('update');

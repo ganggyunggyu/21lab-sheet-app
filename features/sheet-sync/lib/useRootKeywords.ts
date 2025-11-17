@@ -1,7 +1,10 @@
 import { useAtom } from 'jotai';
 import toast from 'react-hot-toast';
 import { activeTabAtom } from '@/shared/model/sheet.store';
-import { SHEET_ID, getSheetNameByType } from '@/shared/config/sheet';
+import {
+  getSheetNameByType,
+  PRODUCTION_CONFIG,
+} from '@/shared/constants/sheet';
 import { useFetchRootKeywords, useBatchUpdateSheet } from '../api/mutations';
 import { useSheetData } from '@/features';
 
@@ -20,7 +23,7 @@ const getColumnLetter = (colIndex: number): string => {
 export const useRootKeywords = () => {
   const [activeTab] = useAtom(activeTabAtom);
   const currentSheetName = getSheetNameByType(activeTab);
-  const { data } = useSheetData(SHEET_ID, currentSheetName);
+  const { data } = useSheetData(PRODUCTION_CONFIG.SHEET_ID, currentSheetName);
 
   const fetchRootKeywords = useFetchRootKeywords();
   const batchUpdate = useBatchUpdateSheet();
@@ -131,7 +134,7 @@ export const useRootKeywords = () => {
       }));
 
       const updateResult = await batchUpdate.mutateAsync({
-        sheetId: SHEET_ID,
+        sheetId: PRODUCTION_CONFIG.SHEET_ID,
         request: {
           updates,
           sheetName: currentSheetName,
@@ -229,7 +232,7 @@ export const useRootKeywords = () => {
       }));
 
       await batchUpdate.mutateAsync({
-        sheetId: SHEET_ID,
+        sheetId: PRODUCTION_CONFIG.SHEET_ID,
         request: {
           updates,
           sheetName: currentSheetName,

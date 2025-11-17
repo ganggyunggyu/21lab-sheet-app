@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { apiClient } from '@/shared/api/client';
-import type { MainTab } from '@/shared/config/sheet';
+import type { MainTab } from '@/shared/constants/sheet';
 
 // 동기화 요청 타입
 interface SyncRequest {
@@ -17,14 +17,20 @@ interface SyncResponse {
 }
 
 // 노출현황 불러오기 요청 타입
+export type ImportMode = 'update' | 'rewrite';
+
 interface ImportRequest {
   sheetId: string;
   sheetName: string;
+  mode?: ImportMode; // 🔥 테스트: 'update' (기본) | 'rewrite' (전체 재작성)
 }
 
 interface ImportResponse {
   success: boolean;
-  updated: number;
+  updated?: number;
+  mode?: ImportMode;
+  totalRows?: number; // rewrite 모드에서 사용
+  message?: string;
 }
 
 // 루트키워드 조회 응답 타입
@@ -83,8 +89,19 @@ export const useImportFromDB = () => {
       return data;
     },
     onSuccess: (data, variables) => {
-      const mode = variables.sheetName === 'all' ? '전체 탭' : '현재 탭';
-      toast.success(`적용 완료! ${data.updated}개 셀 업데이트됨 (${mode})`);
+      const scopeText = variables.sheetName === 'all' ? '전체 탭' : '현재 탭';
+      const modeText =
+        data.mode === 'rewrite' ? '전체 재작성' : '노출여부 업데이트';
+
+      if (data.mode === 'rewrite') {
+        toast.success(
+          `${modeText} 완료! ${data.totalRows}개 행 작성됨 (${scopeText})`
+        );
+      } else {
+        toast.success(
+          `${modeText} 완료! ${data.updated}개 셀 업데이트됨 (${scopeText})`
+        );
+      }
     },
     onError: (error: Error) => {
       console.error('불러오기 에러:', error);
