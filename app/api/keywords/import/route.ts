@@ -501,13 +501,19 @@ const processFullRewrite = async (params: {
   }
 
   // 헤더 + 데이터 행 생성
-  const headers = [['업체명', '키워드', '노출여부', '링크']];
+  const headers = [
+    ['업체명', '키워드', '인기주제', '순위', '노출여부', '바이럴 체크', '링크'],
+  ];
   const dataRows = dbKeywords.map((kw) => [
     kw.company || '',
     kw.keyword || '',
+    kw.popularTopic || '',
+    kw.rank ? String(kw.rank) : '',
     kw.visibility ? 'o' : '',
+    '',
     kw.url || '',
   ]);
+  console.log(dbKeywords[0]);
 
   const allRows = [...headers, ...dataRows];
 

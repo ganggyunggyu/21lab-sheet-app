@@ -1,7 +1,6 @@
 import { connectDB } from '@/shared';
 import { Keyword, IKeyword, type PackageKeywordData } from '../model';
 
-// API에서 사용하는 KeywordData는 PackageKeywordData의 부분 타입
 export type KeywordData = Partial<PackageKeywordData>;
 
 export const replaceAllKeywords = async (
@@ -51,7 +50,10 @@ export const getAllKeywords = async (): Promise<IKeyword[]> => {
 export const getKeywordBySheetType = async (sheetType: string) => {
   console.log(`[getKeywordBySheetType] sheetType: ${sheetType} 조회 시작`);
   await connectDB();
-  const keywords = await Keyword.find({ sheetType: sheetType });
+  console.log(`[getKeywordBySheetType] DB 쿼리 시작...`);
+  const keywords = await Keyword.find({ sheetType: sheetType })
+    .select('company keyword visibility popularTopic url rank sheetType lastChecked createdAt updatedAt')
+    .lean();
   console.log(`[getKeywordBySheetType] ${keywords.length}개 키워드 조회 완료`);
   return keywords;
 };

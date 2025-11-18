@@ -102,38 +102,72 @@ export const useSheetSync = () => {
 
   // 노출현황 전체 불러오기
   const handleImportFromDB = async (mode: 'current' | 'all' = 'current') => {
-    const requests = [
-      {
-        sheetId: TEST_CONFIG.SHEET_ID,
-        sheetName: TEST_CONFIG.SHEET_NAMES.PACKAGE,
-        sheetType: 'package' as MainTab,
-        mode: importMode, // 🔥 현재 선택된 모드 전달
-      },
-      {
-        sheetId: TEST_CONFIG.SHEET_ID,
-        sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
-        sheetType: 'dogmaru-exclude' as MainTab,
-        mode: importMode, // 🔥 현재 선택된 모드 전달
-      },
-      {
-        sheetId: TEST_CONFIG.SHEET_ID,
-        sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU,
-        sheetType: 'dogmaru' as MainTab,
-        mode: importMode, // 🔥 현재 선택된 모드 전달
-      },
-    ];
+    if (mode === 'all') {
+      const requests = [
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.PACKAGE,
+          sheetType: 'package' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
+          sheetType: 'dogmaru-exclude' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU,
+          sheetType: 'dogmaru' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+      ];
 
-    const modeText =
-      importMode === 'rewrite' ? '전체 재작성 중' : '노출현황 불러오는 중';
-    const toastId = toast.loading(modeText);
+      const modeText =
+        importMode === 'rewrite' ? '전체 재작성 중' : '노출현황 불러오는 중';
+      const toastId = toast.loading(modeText);
 
-    try {
-      await importMutation.mutateAsync(requests[0]);
-      await importMutation.mutateAsync(requests[1]);
-      await importMutation.mutateAsync(requests[2]);
-      toast.dismiss(toastId);
-    } catch (error) {
-      toast.dismiss(toastId);
+      try {
+        await importMutation.mutateAsync(requests[0]);
+        await importMutation.mutateAsync(requests[1]);
+        await importMutation.mutateAsync(requests[2]);
+        toast.dismiss(toastId);
+      } catch (error) {
+        toast.dismiss(toastId);
+      }
+    } else {
+      const requests = [
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.PACKAGE,
+          sheetType: 'package' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
+          sheetType: 'dogmaru-exclude' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+        {
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU,
+          sheetType: 'dogmaru' as MainTab,
+          mode: importMode, // 🔥 현재 선택된 모드 전달
+        },
+      ];
+
+      const modeText =
+        importMode === 'rewrite' ? '전체 재작성 중' : '노출현황 불러오는 중';
+      const toastId = toast.loading(modeText);
+
+      try {
+        await importMutation.mutateAsync(requests[1]);
+        toast.dismiss(toastId);
+      } catch (error) {
+        toast.dismiss(toastId);
+      }
     }
   };
 
