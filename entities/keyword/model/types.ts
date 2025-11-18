@@ -5,17 +5,17 @@ export interface BaseKeyword {
   visibility: boolean;
   url: string;
   lastChecked?: Date | string;
+  rank: number;
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude';
+  popularTopic: string;
+  matchedTitle?: string;
 }
 
 // 패키지 키워드 데이터 (Keyword 컬렉션)
 export interface PackageKeywordData extends BaseKeyword {
-  popularTopic: string;
-  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude';
   // 크롤링 관련 필드
   matchedHtml?: string;
-  matchedTitle?: string;
   restaurantName?: string;
-  matchedPosition?: number;
 }
 
 // 루트건바 키워드 데이터 (RootKeyword 컬렉션)

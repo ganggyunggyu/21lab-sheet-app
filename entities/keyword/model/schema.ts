@@ -10,6 +10,7 @@ export interface IKeyword extends Document {
   lastChecked: Date;
   createdAt: Date;
   updatedAt: Date;
+  rank: number;
 }
 
 let Keyword: Model<IKeyword>;
@@ -41,6 +42,10 @@ if (typeof window === 'undefined') {
       url: {
         type: String,
         default: '',
+      },
+      rank: {
+        type: Number,
+        default: 0,
       },
       sheetType: {
         type: String,
