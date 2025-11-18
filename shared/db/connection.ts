@@ -40,13 +40,8 @@ export const connectDB = async () => {
 
   if (!cached.promise) {
     console.log('[DB] 새로운 연결 생성 중...');
-    const opts = {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000,
-    };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts);
+    cached.promise = mongoose.connect(MONGODB_URI);
   } else {
     console.log('[DB] 대기 중인 연결 Promise 발견, await 시작...');
   }
