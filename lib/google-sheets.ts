@@ -192,3 +192,28 @@ export const syncVisibilityToCompanySheet = async (
 
   return results;
 };
+
+interface ClearColsParams {
+  spreadsheetId: string; // 구글 시트 ID
+  sheetName: string; // 탭 이름 (예: '시트1')
+}
+
+/**
+ * 지정한 시트에서 A~G 컬럼 전체 값을 삭제
+ * (컬럼 구조는 그대로 두고, 값만 싹 지움)
+ */
+export const clearColsAtoG = async ({
+  spreadsheetId,
+  sheetName,
+}: ClearColsParams) => {
+  const sheets = getGoogleSheetsClient();
+
+  const range = `${sheetName}!A:G`; // 모든 행의 A~G 컬럼
+
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId,
+    range,
+  });
+
+  console.log(`[clearColsAtoG] Cleared range: ${range}`);
+};

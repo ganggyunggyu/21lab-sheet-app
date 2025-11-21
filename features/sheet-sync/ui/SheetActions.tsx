@@ -10,6 +10,7 @@ import {
   importModeAtom,
 } from '@/shared/model/sheet.store';
 import { useSheetSync, useRootKeywords } from '../lib';
+import { clearColsAtoG } from '@/lib/google-sheets';
 
 export const SheetActions = () => {
   const [isRootOpen, setIsRootOpen] = useAtom(isRootOpenAtom);
@@ -190,6 +191,12 @@ export const SheetActions = () => {
               role="menuitem"
             >
               도그마루 제외만
+            </button>
+            <button
+              className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              role="menuitem"
+            >
+              시트지우기
             </button>
           </div>
         )}

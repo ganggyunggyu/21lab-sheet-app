@@ -14,6 +14,7 @@ import {
   type MainTab,
 } from '@/shared/constants/sheet';
 import { useSyncToDB, useImportFromDB } from '../api/mutations';
+import { clearColsAtoG } from '@/lib/google-sheets';
 
 export const useSheetSync = () => {
   const [activeTab] = useAtom(activeTabAtom);
