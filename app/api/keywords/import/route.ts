@@ -4,6 +4,7 @@ import {
   getSheetData,
   batchUpdateSheetData,
   getSpreadsheetMetadata,
+  clearColsAtoG,
 } from '@/lib/google-sheets';
 import { connectDB } from '@/shared';
 import { getKeywordBySheetType } from '@/entities/keyword/api/api';
@@ -341,7 +342,9 @@ const buildUpdatesSequentialByDb = (params: {
 
     if (dbKw.keyword !== keyword) {
       // 여기서 mismatch 로그 남기고 싶으면 사용
-      // console.warn(`[${title}] 키워드 불일치: DB="${dbKw.keyword}", SHEET="${keyword}"`);
+      console.warn(
+        `[${title}] 키워드 불일치: DB="${dbKw.keyword}", SHEET="${keyword}"`
+      );
     }
 
     const rowNumber = idx + 2;
@@ -555,7 +558,14 @@ export async function POST(request: NextRequest) {
     // 🔥 테스트 모드: 전체 재작성
 
     console.log(sheetId, sheetName, sheetType);
+
     if (mode === 'rewrite') {
+      console.log('[REWRITE MODE] 이전 시트 데이터 삭제');
+      await clearColsAtoG({
+        spreadsheetId: sheetId,
+        sheetName: sheetName,
+      });
+
       console.log('[REWRITE MODE] 전체 재작성 시작...');
       const result = await processFullRewrite({
         sheetId,
