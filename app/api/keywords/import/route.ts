@@ -252,7 +252,7 @@ const processOneSheetWithMap = async (params: {
     return requiredCheck;
   }
 
-  const { updates, appliedLogs, matchedCount, skipped, reason } =
+  const { updates, matchedCount, skipped, reason } =
     buildVisibilityUpdatesByMap({
       title,
       sheetData,
@@ -269,11 +269,6 @@ const processOneSheetWithMap = async (params: {
     const res = await batchUpdateSheetData(sheetId, updates, title);
     updatedCells = (res.totalUpdatedCells as number) || updates.length;
     console.log(`✅ [${title}] 시트 업데이트 완료! (${updatedCells} cells)`);
-
-    // 로그만 남기고 실제 출력은 필요 시만 사용
-    for (const log of appliedLogs) {
-      // console.log(`[${title}] row ${log.row} - ${log.keyword}: ${log.value}`);
-    }
   } else if (!skipped) {
     console.log(`ℹ️ [${title}] 업데이트할 행 없음`);
   }
@@ -447,7 +442,7 @@ const processAllSheetsSequential = async (params: {
       } as const;
     }
 
-    const { updates, appliedLogs, localRows } = buildUpdatesSequentialByDb({
+    const { updates, localRows } = buildUpdatesSequentialByDb({
       title,
       sheetData,
       dbKeywords,
@@ -460,11 +455,6 @@ const processAllSheetsSequential = async (params: {
     if (updates.length > 0) {
       const res = await batchUpdateSheetData(sheetId, updates, title);
       updatedCells = (res.totalUpdatedCells as number) || updates.length;
-    }
-
-    // 필요시 로그 사용
-    for (const log of appliedLogs) {
-      // console.log(`[${title}] row ${log.row} - ${log.keyword}: ${log.value}`);
     }
 
     results.push({ title, updatedCells, rowUpdates: localRows });

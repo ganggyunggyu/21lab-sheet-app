@@ -25,21 +25,6 @@ export const TEST_CONFIG = {
     DOGMARU: '도그마루',
   },
 } as const;
-// export const TEST_CONFIG = {
-//   SHEET_ID: '1T9PHu-fH6HPmyYA9dtfXaDLm20XAPN-9mzlE2QTPkF0',
-//   SHEET_NAMES: {
-//     PACKAGE: '패키지',
-//     DOGMARU_EXCLUDE: '일반건',
-//     DOGMARU: '도그마루',
-//   },
-//   LABELS: {
-//     PACKAGE: '패키지',
-//     DOGMARU_EXCLUDE: '일반건',
-//     DOGMARU: '도그마루',
-//   },
-// } as const;
-
-const currentConfig = TEST_CONFIG;
 
 export type MainTab = 'package' | 'dogmaru' | 'dogmaru-exclude';
 

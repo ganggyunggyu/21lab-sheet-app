@@ -14,11 +14,10 @@ import {
   type MainTab,
 } from '@/shared/constants/sheet';
 import { useSyncToDB, useImportFromDB } from '../api/mutations';
-import { clearColsAtoG } from '@/lib/google-sheets';
 
 export const useSheetSync = () => {
   const [activeTab] = useAtom(activeTabAtom);
-  const [_, setIsSyncing] = useAtom(isSyncingAtom);
+  const setIsSyncing = useSetAtom(isSyncingAtom);
   const setIsExportOpen = useSetAtom(isExportOpenAtom);
   const [importMode] = useAtom(importModeAtom); // 🔥 테스트 모드
 
@@ -138,33 +137,17 @@ export const useSheetSync = () => {
         toast.dismiss(toastId);
       }
     } else {
-      const requests = [
-        {
-          sheetId: TEST_CONFIG.SHEET_ID,
-          sheetName: TEST_CONFIG.SHEET_NAMES.PACKAGE,
-          sheetType: 'package' as MainTab,
-          mode: importMode, // 🔥 현재 선택된 모드 전달
-        },
-        {
-          sheetId: TEST_CONFIG.SHEET_ID,
-          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
-          sheetType: 'dogmaru-exclude' as MainTab,
-          mode: importMode, // 🔥 현재 선택된 모드 전달
-        },
-        {
-          sheetId: TEST_CONFIG.SHEET_ID,
-          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU,
-          sheetType: 'dogmaru' as MainTab,
-          mode: importMode, // 🔥 현재 선택된 모드 전달
-        },
-      ];
-
       const modeText =
         importMode === 'rewrite' ? '전체 재작성 중' : '노출현황 불러오는 중';
       const toastId = toast.loading(modeText);
 
       try {
-        await importMutation.mutateAsync(requests[1]);
+        await importMutation.mutateAsync({
+          sheetId: TEST_CONFIG.SHEET_ID,
+          sheetName: TEST_CONFIG.SHEET_NAMES.DOGMARU_EXCLUDE,
+          sheetType: 'dogmaru-exclude' as MainTab,
+          mode: importMode,
+        });
         toast.dismiss(toastId);
       } catch (error) {
         toast.dismiss(toastId);
