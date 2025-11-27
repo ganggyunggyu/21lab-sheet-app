@@ -1,7 +1,11 @@
 import { connectDB } from '@/shared';
 import { Keyword, IKeyword, type PackageKeywordData } from '../model';
 
-export type KeywordData = Partial<PackageKeywordData>;
+export type KeywordData = Pick<
+  PackageKeywordData,
+  'company' | 'keyword' | 'sheetType'
+> &
+  Partial<Omit<PackageKeywordData, 'company' | 'keyword' | 'sheetType'>>;
 
 export const replaceAllKeywords = async (
   keywords: KeywordData[],

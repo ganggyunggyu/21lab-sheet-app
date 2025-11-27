@@ -1,37 +1,12 @@
-import { google } from 'googleapis';
+import { getGoogleSheetsClient } from '@/lib/google-sheets';
 import { KeywordData } from './api';
-
-const CREDENTIALS_PATH = process.env.GOOGLE_APPLICATION_CREDENTIALS_PATH || '';
 
 export async function parseSheetData(
   sheetId: string,
   sheetName: string,
   sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude'
 ): Promise<KeywordData[]> {
-  const svcEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const svcKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-  let auth: InstanceType<typeof google.auth.GoogleAuth>;
-  if (svcEmail && svcKey) {
-    auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: svcEmail,
-        private_key: svcKey,
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-  } else if (CREDENTIALS_PATH) {
-    auth = new google.auth.GoogleAuth({
-      keyFile: CREDENTIALS_PATH,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-  } else {
-    throw new Error(
-      'Google credentials not configured. Set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY or GOOGLE_APPLICATION_CREDENTIALS_PATH.'
-    );
-  }
-
-  const sheets = google.sheets({ version: 'v4', auth });
+  const sheets = getGoogleSheetsClient(true);
 
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: sheetId,

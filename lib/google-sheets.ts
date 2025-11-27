@@ -1,12 +1,16 @@
 import { google } from 'googleapis';
 
-const getGoogleSheetsClient = () => {
+export const getGoogleSheetsClient = (readOnly = false) => {
+  const scopes = readOnly
+    ? ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    : ['https://www.googleapis.com/auth/spreadsheets'];
+
   const auth = new google.auth.GoogleAuth({
     credentials: {
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    scopes,
   });
 
   return google.sheets({ version: 'v4', auth });
