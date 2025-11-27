@@ -52,7 +52,7 @@ export const getKeywordBySheetType = async (sheetType: string) => {
   await connectDB();
   console.log(`[getKeywordBySheetType] DB 쿼리 시작...`);
   const keywords = await Keyword.find({ sheetType: sheetType })
-    .select('company keyword visibility popularTopic url rank sheetType lastChecked createdAt updatedAt')
+    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired sheetType lastChecked createdAt updatedAt')
     .sort({ updatedAt: 1 })
     .lean();
   console.log(`[getKeywordBySheetType] ${keywords.length}개 키워드 조회 완료`);

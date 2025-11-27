@@ -11,6 +11,8 @@ export interface IKeyword extends Document {
   createdAt: Date;
   updatedAt: Date;
   rank: number;
+  rankWithCafe?: number;
+  isUpdateRequired?: boolean;
 }
 
 let Keyword: Model<IKeyword>;
@@ -46,6 +48,13 @@ if (typeof window === 'undefined') {
       rank: {
         type: Number,
         default: 0,
+      },
+      rankWithCafe: {
+        type: Number,
+        default: 0,
+      },
+      isUpdateRequired: {
+        type: Boolean,
       },
       sheetType: {
         type: String,

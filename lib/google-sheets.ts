@@ -208,7 +208,7 @@ export const clearColsAtoG = async ({
 }: ClearColsParams) => {
   const sheets = getGoogleSheetsClient();
 
-  const range = `${sheetName}!A:G`; // 모든 행의 A~G 컬럼
+  const range = `${sheetName}!A:I`; // 모든 행의 A~G 컬럼
 
   await sheets.spreadsheets.values.clear({
     spreadsheetId,
