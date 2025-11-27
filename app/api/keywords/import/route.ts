@@ -1,129 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllKeywords, Keyword } from '@/entities/keyword';
+import { getAllKeywords } from '@/entities/keyword';
+import {
+  type SheetRow,
+  type SheetUpdate,
+  buildLatestKeywordMap,
+  getColumnLetter,
+  normalize,
+  findColumnIndexes,
+  ensureRequiredColumns,
+} from '@/entities/keyword/lib';
 import {
   getSheetData,
   batchUpdateSheetData,
   getSpreadsheetMetadata,
   clearColsAtoG,
 } from '@/lib/google-sheets';
-import { connectDB } from '@/shared';
 import { getKeywordBySheetType } from '@/entities/keyword/api/api';
-
-type SheetRow = string[];
-type SheetUpdate = { range: string; values: string[][] };
-
-const toKey = (kw: any) => {
-  const company = kw.company || '';
-  const keyword = kw.keyword || '';
-  const popularTopic = kw.popularTopic || '';
-  const url = kw.url || '';
-  return `${company}||${keyword}||${popularTopic}||${url}`;
-};
-
-const getSafeTime = (kw: any) => {
-  return new Date(
-    kw.updatedAt || kw.createdAt || kw.lastChecked || 0
-  ).getTime();
-};
-
-const buildLatestKeywordMap = (dbKeywords: any[]) => {
-  const latestMap = new Map<string, any>();
-
-  for (const kw of dbKeywords) {
-    const key = toKey(kw);
-    const prev = latestMap.get(key);
-    if (!prev) {
-      latestMap.set(key, kw);
-      continue;
-    }
-
-    const prevTime = getSafeTime(prev);
-    const curTime = getSafeTime(kw);
-
-    if (
-      curTime > prevTime ||
-      (curTime === prevTime && String(kw._id) > String(prev._id))
-    ) {
-      latestMap.set(key, kw);
-    }
-  }
-
-  return latestMap;
-};
-
-const getColumnLetter = (colIndex: number): string => {
-  let letter = '';
-  let temp = colIndex + 1;
-  while (temp > 0) {
-    const remainder = (temp - 1) % 26;
-    letter = String.fromCharCode(65 + remainder) + letter;
-    temp = Math.floor((temp - 1) / 26);
-  }
-  return letter;
-};
-
-const normalize = (value: unknown) =>
-  typeof value === 'string' ? value.toLowerCase() : '';
-
-const findColumnIndexes = (headers: SheetRow) => {
-  const companyColumnIndex = headers.findIndex((header) => {
-    const h = normalize(header);
-    return h === '회사명' || h === 'name' || h === '업체';
-  });
-
-  const keywordColumnIndex = headers.findIndex((header) => {
-    const h = normalize(header);
-    return h === '키워드' || h === 'keyword';
-  });
-
-  const popularTopicColumnIndex = headers.findIndex((header) =>
-    normalize(header).includes('인기주제')
-  );
-
-  const visibilityColumnIndex = headers.findIndex((header) => {
-    const h = normalize(header);
-    return h.includes('노출여부') || h.includes('노출');
-  });
-
-  const urlColumnIndex = headers.findIndex((h) => normalize(h) === 'url');
-
-  return {
-    companyColumnIndex,
-    keywordColumnIndex,
-    popularTopicColumnIndex,
-    visibilityColumnIndex,
-    urlColumnIndex,
-  };
-};
-
-const ensureRequiredColumns = (
-  title: string,
-  columns: {
-    companyColumnIndex?: number;
-    keywordColumnIndex: number;
-    visibilityColumnIndex: number;
-  }
-) => {
-  const { companyColumnIndex, keywordColumnIndex, visibilityColumnIndex } =
-    columns;
-
-  if (
-    companyColumnIndex === undefined ||
-    companyColumnIndex === -1 ||
-    keywordColumnIndex === -1 ||
-    visibilityColumnIndex === -1
-  ) {
-    return {
-      title,
-      matched: 0,
-      updatedCells: 0,
-      skipped: true as const,
-      reason: '필요 컬럼 없음',
-    };
-  }
-
-  return null;
-};
 
 const buildVisibilityUpdatesByMap = (params: {
   title: string;
