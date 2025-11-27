@@ -6,3 +6,4 @@ export {
   useSyncVisibility,
   queryKeys,
 } from './hooks';
+export { useColumnIndices } from './useColumnIndices';

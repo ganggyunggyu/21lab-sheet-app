@@ -9,7 +9,8 @@ import {
   useAddSheetRow,
   useUpdateSheetRow,
   useSyncVisibility,
-} from '../lib/hooks';
+  useColumnIndices,
+} from '../lib';
 import { useCompanyList } from '@/entities';
 
 type FilterType = 'all' | 'visible' | 'empty';
@@ -55,41 +56,14 @@ export const SheetTable = ({
   const syncMutation = useSyncVisibility();
   const { setCompanies } = useCompanyList();
 
-  const { visibleColumnIndices, allHeaders } = useMemo(() => {
-    const sheetData = data?.data || [];
-    const headers = sheetData[0] || [];
-
-    const parseKoreanDate = (dateStr: string): Date | null => {
-      const match = dateStr?.match(/(\d+)월(\d+)일/);
-      if (!match) return null;
-
-      const month = parseInt(match[1], 10);
-      const day = parseInt(match[2], 10);
-      const currentYear = new Date().getFullYear();
-
-      return new Date(currentYear, month - 1, day);
-    };
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(today.getDate() - 7);
-    const sevenDaysLater = new Date(today);
-    sevenDaysLater.setDate(today.getDate() + 7);
-
-    const indices = headers
-      .map((header, index) => {
-        const parsedDate = parseKoreanDate(header);
-        if (!parsedDate) return { index, visible: true };
-
-        const isInRange = parsedDate >= sevenDaysAgo && parsedDate <= sevenDaysLater;
-        return { index, visible: isInRange };
-      })
-      .filter((col) => col.visible)
-      .map((col) => col.index);
-
-    return { visibleColumnIndices: indices, allHeaders: headers };
-  }, [data]);
+  const {
+    visibleColumnIndices,
+    allHeaders,
+    originalUrlColumnIndex,
+    originalNameColumnIndex,
+    originalVisibilityColumnIndex,
+    originalKeywordColumnIndex,
+  } = useColumnIndices(data?.data);
 
   const handleCellClick = (row: number, col: number, value: string) => {
     const originalCol = visibleColumnIndices[col];
@@ -188,27 +162,6 @@ export const SheetTable = ({
   const allRows = useMemo(() => sheetData.slice(1), [sheetData]);
 
   const headers = visibleColumnIndices.map((i) => allHeaders[i]);
-
-  const originalUrlColumnIndex = allHeaders.findIndex(
-    (header) => header?.toLowerCase() === 'url'
-  );
-
-  const originalNameColumnIndex = allHeaders.findIndex(
-    (header) =>
-      header?.toLowerCase() === '회사명' || header?.toLowerCase() === 'name'
-  );
-
-  const originalVisibilityColumnIndex = allHeaders.findIndex(
-    (header) =>
-      header?.toLowerCase().includes('노출여부') ||
-      header?.toLowerCase().includes('노출')
-  );
-
-  const originalKeywordColumnIndex = allHeaders.findIndex(
-    (header) =>
-      header?.toLowerCase() === '키워드' || header?.toLowerCase() === 'keyword'
-  );
-
   const urlColumnIndex = visibleColumnIndices.indexOf(originalUrlColumnIndex);
   React.useEffect(() => {
     if (
