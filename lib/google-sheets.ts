@@ -26,7 +26,6 @@ export const getSheetData = async (
   const sheets = getGoogleSheetsClient();
 
   const fullRange = sheetName ? `${sheetName}!${range}` : range;
-  console.log(sheetName);
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: fullRange,
@@ -219,6 +218,4 @@ export const clearColsAtoG = async ({
     spreadsheetId,
     range,
   });
-
-  console.log(`[clearColsAtoG] Cleared range: ${range}`);
 };

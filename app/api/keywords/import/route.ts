@@ -61,8 +61,6 @@ const buildVisibilityUpdatesByMap = (params: {
   let currentCompany = '';
   let matchedCount = 0;
 
-  console.log(`[${title}] 매칭 시작...`);
-
   sheetData.slice(1).forEach((row, idx) => {
     if (row[companyColumnIndex]) {
       currentCompany = row[companyColumnIndex];
@@ -160,9 +158,6 @@ const processOneSheetWithMap = async (params: {
   if (!skipped && updates.length > 0) {
     const res = await batchUpdateSheetData(sheetId, updates, title);
     updatedCells = (res.totalUpdatedCells as number) || updates.length;
-    console.log(`✅ [${title}] 시트 업데이트 완료! (${updatedCells} cells)`);
-  } else if (!skipped) {
-    console.log(`ℹ️ [${title}] 업데이트할 행 없음`);
   }
 
   return { title, matched: matchedCount, updatedCells, skipped, reason };
@@ -265,8 +260,6 @@ const processAllSheetsSequential = async (params: {
       ) => a.sheetId - b.sheetId
     )
     .map((sheet: { title: string; sheetId: number }) => sheet.title);
-
-  console.log(orderedTitles);
 
   const dbIndexRef = { value: 0 };
   const results: Array<{
@@ -374,8 +367,6 @@ const processFullRewrite = async (params: {
 
   const dbKeywords = await getKeywordBySheetType(sheetType);
 
-  console.log(dbKeywords.length);
-
   if (dbKeywords.length === 0) {
     return {
       title: sheetName,
@@ -427,10 +418,6 @@ const processFullRewrite = async (params: {
   const res = await batchUpdateSheetData(sheetId, updates, sheetName);
   const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 3;
 
-  console.log(
-    `✅ [${sheetName}] 전체 재작성 완료! (${dbKeywords.length}개 행, ${updatedCells} cells)`
-  );
-
   return {
     title: sheetName,
     totalRows: dbKeywords.length,
@@ -451,17 +438,12 @@ export async function POST(request: NextRequest) {
     const isAll = String(sheetName).toLowerCase() === 'all';
 
     // 🔥 테스트 모드: 전체 재작성
-
-    console.log(sheetId, sheetName, sheetType);
-
     if (mode === 'rewrite') {
-      console.log('[REWRITE MODE] 이전 시트 데이터 삭제');
       await clearColsAtoG({
         spreadsheetId: sheetId,
         sheetName: sheetName,
       });
 
-      console.log('[REWRITE MODE] 전체 재작성 시작...');
       const result = await processFullRewrite({
         sheetId,
         sheetName,
@@ -475,7 +457,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 기존 로직: 노출여부만 업데이트
-    console.log('📝 [UPDATE MODE] 노출여부 업데이트 시작...');
     const dbKeywords = await getAllKeywords();
     const latestMap = buildLatestKeywordMap(dbKeywords);
 

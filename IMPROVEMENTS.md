@@ -31,6 +31,7 @@
 
 | 이슈 | 상태 | 커밋 |
 |------|------|------|
+| LOW-001: console.log 정리 | ✅ | - |
 | LOW-003: DEFAULT_SHEET_RANGE 상수화 | ✅ | e5cdd44 |
 | LOW-004: cn 함수 도입 | ✅ | e5cdd44 |
 | LOW-005: 주석 로그 삭제 | ✅ | 88a6516 |
@@ -40,9 +41,11 @@
 ## 📊 개선 효과
 
 ### 코드 줄 수 감소
-- `app/api/keywords/import/route.ts`: 631 → 523줄 (-108줄)
+- `app/api/keywords/import/route.ts`: 631 → 503줄 (-128줄)
 - `features/sheet-table/ui/SheetTable.tsx`: 478 → 431줄 (-47줄)
-- **총 155줄 감소**
+- `lib/google-sheets.ts`: 225 → 221줄 (-4줄)
+- `entities/keyword/api/api.ts`: 103 → 96줄 (-7줄)
+- **총 186줄 감소**
 
 ### 새로 생성된 파일
 - `shared/api/errorHandler.ts` - 공통 에러 핸들러
@@ -58,29 +61,18 @@
 
 ## 🔄 남은 개선 항목
 
-### LOW-001: console.log 정리
+_모든 주요 개선 항목 완료!_
 
-**현재 상태**: 다수의 파일에 console.log 잔존
+### 선택적 개선사항
 
-**위치**:
-- `lib/google-sheets.ts`
-- `entities/keyword/api/api.ts`
-- `app/api/keywords/import/route.ts`
+#### 1. 운영 로그 관리
+**현재 위치**:
+- `src/lib/cron.ts` - CRON 작업 로그 (운영 필수)
+- `shared/db/connection.ts` - DB 연결 로그 (디버깅용)
 
-**권장 방안**:
-1. 프로덕션 빌드 시 console 제거 설정
-2. 또는 로깅 라이브러리 도입 (winston, pino 등)
-
-### LOW-002: 매직 넘버 상수화
-
-**위치**: `features/sheet-table/lib/useColumnIndices.ts:4`
-
-**현재**:
-```typescript
-const VISIBLE_DATE_RANGE_DAYS = 7;
-```
-
-**상태**: ✅ 이미 상수화됨
+**권장**:
+- 현재 상태 유지 또는
+- winston, pino 등 로깅 라이브러리로 전환하여 레벨별 로그 관리
 
 ---
 
@@ -107,9 +99,9 @@ const VISIBLE_DATE_RANGE_DAYS = 7;
 
 ## 🎯 다음 단계
 
-1. **console.log 정리**: 로깅 전략 수립
-2. **테스트 환경 구축**: Vitest 설정
-3. **타입 검증 강화**: Zod 도입
+1. **테스트 환경 구축**: Vitest 설정
+2. **타입 검증 강화**: Zod 도입
+3. **로깅 시스템 개선**: winston/pino 도입 (선택적)
 
 ---
 
