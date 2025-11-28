@@ -26,6 +26,8 @@ export const TEST_CONFIG = {
   },
 } as const;
 
+export const DEFAULT_SHEET_RANGE = 'A:ZZ';
+
 export type MainTab = 'package' | 'dogmaru' | 'dogmaru-exclude';
 
 export interface KeywordData {

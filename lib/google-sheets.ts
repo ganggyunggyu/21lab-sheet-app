@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { DEFAULT_SHEET_RANGE } from '@/shared/constants/sheet';
 
 export const getGoogleSheetsClient = (readOnly = false) => {
   const scopes = readOnly
@@ -19,7 +20,7 @@ export const getGoogleSheetsClient = (readOnly = false) => {
 export const getSheetData = async (
   spreadsheetId: string,
   sheetName?: string,
-  range = 'A:ZZ'
+  range = DEFAULT_SHEET_RANGE
 ) => {
   if (!sheetName) return;
   const sheets = getGoogleSheetsClient();
