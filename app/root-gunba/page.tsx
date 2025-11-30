@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ThemeToggle, useSheetData, useUpdateSheetRow } from '@/features';
 import { ArrowLeft, ExternalLink, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ROOT_GUNBA_CONFIG } from '@/shared/constants/sheet';
 
-const SHEET_ID = '1CsO-R1LMrsQdUw7T1KEL2I4bMxAeYnZIklOgr8e_DPY';
+const SHEET_ID = ROOT_GUNBA_CONFIG.SHEET_ID;
 
 const extractSheetId = (url: string): string => {
   const trimmedUrl = url?.trim() || '';

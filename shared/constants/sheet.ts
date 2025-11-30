@@ -26,6 +26,10 @@ export const TEST_CONFIG = {
   },
 } as const;
 
+export const ROOT_GUNBA_CONFIG = {
+  SHEET_ID: '1CsO-R1LMrsQdUw7T1KEL2I4bMxAeYnZIklOgr8e_DPY',
+} as const;
+
 export const DEFAULT_SHEET_RANGE = 'A:ZZ';
 
 export type MainTab = 'package' | 'dogmaru' | 'dogmaru-exclude';
