@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { replaceAllRootKeywords } from '@/entities/keyword';
 import { parseRootSheetData } from '@/entities/keyword/api/rootParser';
+import { ROOT_IMPORT_CONFIG, ROOT_SYNC_CONFIG } from '@/shared/constants/sheet';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sheetId } = await request.json();
+    const sheetId = ROOT_SYNC_CONFIG.SHEET_ID;
 
     if (!sheetId) {
       return NextResponse.json(
