@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ThemeToggle, useSheetData, useUpdateSheetRow } from '@/features';
 import { ArrowLeft, ExternalLink, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { ROOT_GUNBA_CONFIG } from '@/shared/constants/sheet';
+import { ROOT_SYNC_CONFIG } from '@/shared/constants/sheet';
 
-const SHEET_ID = ROOT_GUNBA_CONFIG.SHEET_ID;
+const SHEET_ID = ROOT_SYNC_CONFIG.SHEET_ID;
 
 const extractSheetId = (url: string): string => {
   const trimmedUrl = url?.trim() || '';
@@ -36,7 +36,13 @@ export default function RootGunbaPage() {
   const { data, isLoading, error } = useSheetData(SHEET_ID);
   const updateMutation = useUpdateSheetRow(SHEET_ID);
 
-  const { headers, rows, headerRowIndex, keywordColumnIndex, companyColumnIndex } = useMemo(() => {
+  const {
+    headers,
+    rows,
+    headerRowIndex,
+    keywordColumnIndex,
+    companyColumnIndex,
+  } = useMemo(() => {
     const sheetData = data?.data || [];
 
     const headerIdx = sheetData.findIndex(
@@ -44,17 +50,27 @@ export default function RootGunbaPage() {
     );
 
     if (headerIdx === -1) {
-      return { headers: [], rows: [], headerRowIndex: -1, keywordColumnIndex: -1, companyColumnIndex: -1 };
+      return {
+        headers: [],
+        rows: [],
+        headerRowIndex: -1,
+        keywordColumnIndex: -1,
+        companyColumnIndex: -1,
+      };
     }
 
     const foundHeaders = sheetData[headerIdx] || [];
     const rawDataRows = sheetData.slice(headerIdx + 1);
 
     const keywordIdx = foundHeaders.findIndex(
-      (header) => header?.toLowerCase() === '키워드' || header?.toLowerCase() === 'keyword'
+      (header) =>
+        header?.toLowerCase() === '키워드' ||
+        header?.toLowerCase() === 'keyword'
     );
     const companyIdx = foundHeaders.findIndex(
-      (header) => header?.toLowerCase() === '업체명' || header?.toLowerCase().includes('업체')
+      (header) =>
+        header?.toLowerCase() === '업체명' ||
+        header?.toLowerCase().includes('업체')
     );
 
     let currentCompany = '';
@@ -82,15 +98,20 @@ export default function RootGunbaPage() {
   }, [data]);
 
   const urlColumnIndex = headers.findIndex(
-    (header) => header?.toLowerCase().includes('시트') && header?.toLowerCase().includes('링크')
+    (header) =>
+      header?.toLowerCase().includes('시트') &&
+      header?.toLowerCase().includes('링크')
   );
 
-  console.log('📊 processed rows:', rows.map((row, idx) => ({
-    index: idx,
-    keyword: row[keywordColumnIndex],
-    company: row[companyColumnIndex],
-    formatted: `${row[keywordColumnIndex]}(${row[companyColumnIndex]})`
-  })));
+  console.log(
+    '📊 processed rows:',
+    rows.map((row, idx) => ({
+      index: idx,
+      keyword: row[keywordColumnIndex],
+      company: row[companyColumnIndex],
+      formatted: `${row[keywordColumnIndex]}(${row[companyColumnIndex]})`,
+    }))
+  );
 
   const handleBack = () => {
     router.push('/');
@@ -164,7 +185,9 @@ export default function RootGunbaPage() {
     } catch (error) {
       console.error('동기화 에러:', error);
       toast.error(
-        `동기화 실패: ${error instanceof Error ? error.message : '알 수 없는 에러'}`
+        `동기화 실패: ${
+          error instanceof Error ? error.message : '알 수 없는 에러'
+        }`
       );
     } finally {
       setIsSyncing(false);
@@ -181,7 +204,10 @@ export default function RootGunbaPage() {
                 onClick={handleBack}
                 className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <ArrowLeft size={20} className="text-gray-900 dark:text-white" />
+                <ArrowLeft
+                  size={20}
+                  className="text-gray-900 dark:text-white"
+                />
               </button>
               <h1 className="text-xl font-normal text-gray-900 dark:text-white">
                 Root Gunba
@@ -212,7 +238,10 @@ export default function RootGunbaPage() {
                 onClick={handleBack}
                 className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <ArrowLeft size={20} className="text-gray-900 dark:text-white" />
+                <ArrowLeft
+                  size={20}
+                  className="text-gray-900 dark:text-white"
+                />
               </button>
               <h1 className="text-xl font-normal text-gray-900 dark:text-white">
                 Root Gunba
@@ -298,9 +327,12 @@ export default function RootGunbaPage() {
                         const isUrlColumn = colIndex === urlColumnIndex;
                         const isKeywordColumn = colIndex === keywordColumnIndex;
 
-                        const displayValue = isKeywordColumn && keywordColumnIndex !== -1 && companyColumnIndex !== -1
-                          ? `${cellValue}(${row[companyColumnIndex] || ''})`
-                          : cellValue;
+                        const displayValue =
+                          isKeywordColumn &&
+                          keywordColumnIndex !== -1 &&
+                          companyColumnIndex !== -1
+                            ? `${cellValue}(${row[companyColumnIndex] || ''})`
+                            : cellValue;
 
                         return (
                           <td
@@ -316,9 +348,11 @@ export default function RootGunbaPage() {
                                   autoFocus
                                   rows={1}
                                   onInput={(e) => {
-                                    const target = e.target as HTMLTextAreaElement;
+                                    const target =
+                                      e.target as HTMLTextAreaElement;
                                     target.style.height = 'auto';
-                                    target.style.height = target.scrollHeight + 'px';
+                                    target.style.height =
+                                      target.scrollHeight + 'px';
                                   }}
                                 />
                                 <button
@@ -337,7 +371,9 @@ export default function RootGunbaPage() {
                             ) : isUrlColumn && cellValue ? (
                               <div className="flex items-center justify-center px-2 py-2">
                                 <button
-                                  onClick={() => handleSheetLinkClick(cellValue)}
+                                  onClick={() =>
+                                    handleSheetLinkClick(cellValue)
+                                  }
                                   className="rounded p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                                   title="시트로 이동"
                                 >

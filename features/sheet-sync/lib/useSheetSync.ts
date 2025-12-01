@@ -101,7 +101,27 @@ export const useSheetSync = () => {
   };
 
   // 노출현황 전체 불러오기
-  const handleImportFromDB = async (mode: 'current' | 'all' = 'current') => {
+  const handleImportFromDB = async (mode: 'current' | 'all' | 'root-import' = 'current') => {
+    if (mode === 'root-import') {
+      const { ROOT_IMPORT_CONFIG } = await import('@/shared/constants/sheet');
+      const modeText =
+        importMode === 'rewrite' ? '루트 임포트 전체 재작성 중' : '루트 임포트 노출현황 불러오는 중';
+      const toastId = toast.loading(modeText);
+
+      try {
+        await importMutation.mutateAsync({
+          sheetId: ROOT_IMPORT_CONFIG.SHEET_ID,
+          sheetName: ROOT_IMPORT_CONFIG.SHEET_NAMES.ROOT,
+          sheetType: 'root-import',
+          mode: importMode,
+        });
+        toast.dismiss(toastId);
+      } catch (error) {
+        toast.dismiss(toastId);
+      }
+      return;
+    }
+
     if (mode === 'all') {
       const requests = [
         {

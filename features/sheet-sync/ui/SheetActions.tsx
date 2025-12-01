@@ -127,6 +127,17 @@ export const SheetActions = () => {
             >
               전체 탭
             </button>
+            <div className="h-px bg-gray-200 dark:bg-gray-700" />
+            <button
+              onClick={() => {
+                setIsImportOpen(false);
+                handleImportFromDB('root-import');
+              }}
+              className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              role="menuitem"
+            >
+              루트 임포트
+            </button>
           </div>
         )}
       </div>

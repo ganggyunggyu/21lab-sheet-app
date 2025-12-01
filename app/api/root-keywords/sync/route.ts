@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('🔥 루트건바 동기화 시작:', { sheetId });
+    console.log('🔥 루트건바이 동기화 시작:', { sheetId });
 
     const keywords = await parseRootSheetData(sheetId);
 
@@ -30,7 +30,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('루트건바 키워드 동기화 에러:', error);
     return NextResponse.json(
-      { error: '서버 에러가 발생했습니다', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: '서버 에러가 발생했습니다',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

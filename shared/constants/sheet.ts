@@ -26,8 +26,24 @@ export const TEST_CONFIG = {
   },
 } as const;
 
-export const ROOT_GUNBA_CONFIG = {
+export const ROOT_SYNC_CONFIG = {
   SHEET_ID: '1CsO-R1LMrsQdUw7T1KEL2I4bMxAeYnZIklOgr8e_DPY',
+  SHEET_NAMES: {
+    ROOT: '루트',
+  },
+  LABELS: {
+    ROOT: '루트',
+  },
+} as const;
+
+export const ROOT_IMPORT_CONFIG = {
+  SHEET_ID: '1T9PHu-fH6HPmyYA9dtfXaDLm20XAPN-9mzlE2QTPkF0',
+  SHEET_NAMES: {
+    ROOT: '루트',
+  },
+  LABELS: {
+    ROOT: '루트',
+  },
 } as const;
 
 export const DEFAULT_SHEET_RANGE = 'A:ZZ';
