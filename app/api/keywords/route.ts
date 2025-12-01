@@ -8,16 +8,19 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const keywords: KeywordData[] = await request.json();
+    const { keywords, sheetType } = await request.json() as {
+      keywords: KeywordData[];
+      sheetType: string;
+    };
 
-    if (!Array.isArray(keywords)) {
+    if (!Array.isArray(keywords) || !sheetType) {
       return NextResponse.json(
-        { error: '키워드 배열이 필요합니다' },
+        { error: 'keywords 배열과 sheetType이 필요합니다' },
         { status: 400 }
       );
     }
 
-    const result = await replaceAllKeywords(keywords);
+    const result = await replaceAllKeywords(keywords, sheetType);
 
     return NextResponse.json({
       success: true,

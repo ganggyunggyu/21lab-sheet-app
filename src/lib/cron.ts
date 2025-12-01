@@ -17,7 +17,7 @@ export async function syncAllSheets() {
       SHEET_NAMES.PACKAGE,
       'package'
     );
-    const packageResult = await replaceAllKeywords(packageKeywords);
+    const packageResult = await replaceAllKeywords(packageKeywords, 'package');
     console.log('✅ [CRON] 패키지 동기화 완료:', packageResult);
 
     const dogmaruKeywords = await parseSheetData(
@@ -25,7 +25,7 @@ export async function syncAllSheets() {
       SHEET_NAMES.DOGMARU,
       'dogmaru'
     );
-    const dogmaruResult = await replaceAllKeywords(dogmaruKeywords);
+    const dogmaruResult = await replaceAllKeywords(dogmaruKeywords, 'dogmaru');
     console.log('✅ [CRON] 도그마루 동기화 완료:', dogmaruResult);
 
     const dogmaruExcludeKeywords = await parseSheetData(
@@ -33,7 +33,7 @@ export async function syncAllSheets() {
       SHEET_NAMES.DOGMARU_EXCLUDE,
       'dogmaru-exclude'
     );
-    const dogmaruExcludeResult = await replaceAllKeywords(dogmaruExcludeKeywords);
+    const dogmaruExcludeResult = await replaceAllKeywords(dogmaruExcludeKeywords, 'dogmaru-exclude');
     console.log('✅ [CRON] 도그마루 제외 동기화 완료:', dogmaruExcludeResult);
 
     const totalDeleted =
