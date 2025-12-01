@@ -22,7 +22,8 @@ export type ImportMode = 'update' | 'rewrite';
 interface ImportRequest {
   sheetId: string;
   sheetName: string;
-  mode?: ImportMode; // 🔥 테스트: 'update' (기본) | 'rewrite' (전체 재작성)
+  sheetType?: MainTab;
+  mode?: ImportMode;
 }
 
 interface ImportResponse {
@@ -118,6 +119,27 @@ export const useFetchRootKeywords = () => {
         '/root-keywords'
       );
       return data;
+    },
+  });
+};
+
+// 루트키워드 노출현황 불러오기
+export const useImportRootKeywords = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await apiClient.post<ImportResponse>(
+        '/root-keywords/import'
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(
+        `루트 임포트 완료! ${data.updated}개 셀 업데이트됨`
+      );
+    },
+    onError: (error: Error) => {
+      console.error('루트 임포트 에러:', error);
+      toast.error(error.message || '루트 임포트에 실패했습니다');
     },
   });
 };

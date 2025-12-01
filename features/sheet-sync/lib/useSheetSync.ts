@@ -13,7 +13,7 @@ import {
   getTabLabel,
   type MainTab,
 } from '@/shared/constants/sheet';
-import { useSyncToDB, useImportFromDB } from '../api/mutations';
+import { useSyncToDB, useImportFromDB, useImportRootKeywords } from '../api/mutations';
 
 export const useSheetSync = () => {
   const [activeTab] = useAtom(activeTabAtom);
@@ -24,6 +24,7 @@ export const useSheetSync = () => {
   const syncMutation = useSyncToDB();
 
   const importMutation = useImportFromDB();
+  const rootImportMutation = useImportRootKeywords();
 
   const currentSheetName = getSheetNameByType(activeTab);
 
@@ -103,18 +104,10 @@ export const useSheetSync = () => {
   // 노출현황 전체 불러오기
   const handleImportFromDB = async (mode: 'current' | 'all' | 'root-import' = 'current') => {
     if (mode === 'root-import') {
-      const { ROOT_IMPORT_CONFIG } = await import('@/shared/constants/sheet');
-      const modeText =
-        importMode === 'rewrite' ? '루트 임포트 전체 재작성 중' : '루트 임포트 노출현황 불러오는 중';
-      const toastId = toast.loading(modeText);
+      const toastId = toast.loading('루트 임포트 노출현황 불러오는 중...');
 
       try {
-        await importMutation.mutateAsync({
-          sheetId: ROOT_IMPORT_CONFIG.SHEET_ID,
-          sheetName: ROOT_IMPORT_CONFIG.SHEET_NAMES.ROOT,
-          sheetType: 'root-import',
-          mode: importMode,
-        });
+        await rootImportMutation.mutateAsync();
         toast.dismiss(toastId);
       } catch (error) {
         toast.dismiss(toastId);
