@@ -5,15 +5,13 @@ export const createErrorResponse = (
   status: number,
   details?: unknown
 ) => {
-  return NextResponse.json(
-    {
-      error: message,
-      ...(details && {
-        details: details instanceof Error ? details.message : String(details),
-      }),
-    },
-    { status }
-  );
+  const body: { error: string; details?: string } = { error: message };
+
+  if (details) {
+    body.details = details instanceof Error ? details.message : String(details);
+  }
+
+  return NextResponse.json(body, { status });
 };
 
 export const createSuccessResponse = <T>(data: T, status = 200) => {
