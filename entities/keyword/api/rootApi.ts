@@ -28,7 +28,10 @@ export const replaceAllRootKeywords = async (keywords: RootKeywordData[]) => {
   const insertResult = await RootKeyword.insertMany(dataToInsert);
 
   console.log('🔥 삽입된 개수:', insertResult.length);
-  console.log('🔥 삽입된 데이터 샘플:', insertResult.slice(0, 2).map(doc => doc.toObject()));
+  console.log(
+    '🔥 삽입된 데이터 샘플:',
+    insertResult.slice(0, 2).map((doc) => doc.toObject())
+  );
 
   return {
     deleted: deleteResult.deletedCount,
@@ -38,8 +41,7 @@ export const replaceAllRootKeywords = async (keywords: RootKeywordData[]) => {
 
 export const getAllRootKeywords = async (): Promise<IRootKeyword[]> => {
   await connectDB();
-  // 삽입 순서 보장: 기본 _id 인덱스로 정렬 (메모리 초과 회피)
-  return await RootKeyword.find().sort({ _id: 1 });
+  return await RootKeyword.find();
 };
 
 export const getRootKeywordsByCompany = async (

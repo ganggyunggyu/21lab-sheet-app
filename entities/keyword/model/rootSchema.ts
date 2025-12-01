@@ -6,6 +6,15 @@ export interface IRootKeyword extends Document {
   visibility: boolean;
   url: string;
   lastChecked: Date;
+  isUpdateRequired?: boolean;
+  keywordType?: string;
+  matchedTitle?: string;
+  popularTopic?: string;
+  postVendorName?: string;
+  rank?: number;
+  restaurantName?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 let RootKeyword: Model<IRootKeyword>;
@@ -32,6 +41,27 @@ if (typeof window === 'undefined') {
       lastChecked: {
         type: Date,
         default: Date.now,
+      },
+      isUpdateRequired: {
+        type: Boolean,
+      },
+      keywordType: {
+        type: String,
+      },
+      matchedTitle: {
+        type: String,
+      },
+      popularTopic: {
+        type: String,
+      },
+      postVendorName: {
+        type: String,
+      },
+      rank: {
+        type: Number,
+      },
+      restaurantName: {
+        type: String,
       },
     },
     {
