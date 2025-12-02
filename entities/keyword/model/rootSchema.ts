@@ -12,6 +12,7 @@ export interface IRootKeyword extends Document {
   popularTopic?: string;
   postVendorName?: string;
   rank?: number;
+  rankWithCafe?: number;
   restaurantName?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -58,6 +59,9 @@ if (typeof window === 'undefined') {
         type: String,
       },
       rank: {
+        type: Number,
+      },
+      rankWithCafe: {
         type: Number,
       },
       restaurantName: {

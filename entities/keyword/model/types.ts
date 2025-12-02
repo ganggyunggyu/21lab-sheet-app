@@ -21,6 +21,8 @@ export interface PackageKeywordData extends BaseKeyword {
 // 루트건바 키워드 데이터 (RootKeyword 컬렉션)
 export interface RootKeywordData extends Omit<BaseKeyword, 'rank' | 'sheetType' | 'popularTopic'> {
   rank?: number;
+  rankWithCafe?: number;
   sheetType?: 'package' | 'dogmaru' | 'dogmaru-exclude';
   popularTopic?: string;
+  isUpdateRequired?: boolean;
 }
