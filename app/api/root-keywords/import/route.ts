@@ -40,6 +40,8 @@ export async function POST() {
         '인기주제',
         '순위',
         '노출여부',
+        '바이럴 체크',
+        '인기글 순위',
         '이미지 매칭',
         '링크',
       ],
@@ -51,6 +53,8 @@ export async function POST() {
       kw.popularTopic || '',
       kw.rank ? String(kw.rank) : '',
       kw.visibility ? 'o' : '',
+      '', // 바이럴 체크 - 빈값
+      kw.rankWithCafe ? String(kw.rankWithCafe) : '',
       kw.isUpdateRequired === true ? 'o' : '',
       kw.url || '',
     ]);
@@ -69,7 +73,7 @@ export async function POST() {
     ];
 
     const res = await batchUpdateSheetData(SHEET_ID, updates, sheetName);
-    const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 7;
+    const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 9;
 
     return NextResponse.json({
       success: true,
