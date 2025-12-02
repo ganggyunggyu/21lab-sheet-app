@@ -49,6 +49,18 @@ export async function parseRootSheetData(
       header?.toLowerCase().includes('노출') ||
       header?.toLowerCase().includes('공정위')
   );
+  const popularTopicColumnIndex = headers.findIndex((header) =>
+    header?.toLowerCase().includes('인기주제')
+  );
+  const rankColumnIndex = headers.findIndex((header) =>
+    header?.toLowerCase().includes('순위') && !header?.toLowerCase().includes('인기글')
+  );
+  const rankWithCafeColumnIndex = headers.findIndex((header) =>
+    header?.toLowerCase().includes('인기글') && header?.toLowerCase().includes('순위')
+  );
+  const imageMatchColumnIndex = headers.findIndex((header) =>
+    header?.toLowerCase().includes('이미지') && header?.toLowerCase().includes('매칭')
+  );
   const urlColumnIndex = headers.findIndex(
     (header) => header?.toLowerCase().includes('시트') && header?.toLowerCase().includes('링크')
   );
@@ -76,12 +88,26 @@ export async function parseRootSheetData(
 
       const formattedKeyword = company ? `${keyword}(${company})` : keyword;
 
+      const rankValue = rankColumnIndex !== -1 ? row[rankColumnIndex] : '';
+      const rank = rankValue ? parseInt(rankValue, 10) : undefined;
+
+      const rankWithCafeValue = rankWithCafeColumnIndex !== -1 ? row[rankWithCafeColumnIndex] : '';
+      const rankWithCafe = rankWithCafeValue ? parseInt(rankWithCafeValue, 10) : undefined;
+
       return {
         company,
         keyword: formattedKeyword,
         visibility: visibilityColumnIndex !== -1
           ? (row[visibilityColumnIndex] || '').toLowerCase() === 'o'
           : false,
+        popularTopic: popularTopicColumnIndex !== -1
+          ? row[popularTopicColumnIndex] || ''
+          : '',
+        rank: rank && !isNaN(rank) ? rank : undefined,
+        rankWithCafe: rankWithCafe && !isNaN(rankWithCafe) ? rankWithCafe : undefined,
+        isUpdateRequired: imageMatchColumnIndex !== -1
+          ? (row[imageMatchColumnIndex] || '').toLowerCase() === 'o'
+          : undefined,
         url: urlColumnIndex !== -1 ? row[urlColumnIndex] || '' : '',
       };
     })
