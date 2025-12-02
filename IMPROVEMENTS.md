@@ -61,7 +61,60 @@
 
 ## 🔄 남은 개선 항목
 
-_모든 주요 개선 항목 완료!_
+### Root Keywords Import 기능 분석 (2025-12-01)
+
+#### 🟡 Medium Priority
+
+| 이슈 | 위치 | 상태 |
+|------|------|------|
+| MED-001: 디버그 로그 프로덕션 코드 잔존 | `app/api/root-keywords/import/route.ts`, `entities/keyword/api/rootApi.ts` | ⏳ |
+| MED-002: RootKeyword 타입 불일치 | `features/sheet-sync/api/mutations.ts:38-43` | ⏳ |
+| MED-003: 함수명 불일치 (clearColsAtoG) | `lib/google-sheets.ts:209` | ⏳ |
+
+**MED-001 상세**:
+```typescript
+// 문제: console.log가 프로덕션에 남아있음
+console.log('[루트 임포트] SHEET_ID:', SHEET_ID);
+
+// 해결: 환경별 분기 또는 로거 사용
+if (process.env.NODE_ENV === 'development') {
+  console.log('[루트 임포트] SHEET_ID:', SHEET_ID);
+}
+```
+
+**MED-002 상세**:
+```typescript
+// 문제: 로컬 인터페이스와 실제 IRootKeyword 불일치
+interface RootKeyword {  // mutations.ts
+  _id: string;
+  keyword: string;
+  company: string;
+  createdAt: string;
+}
+
+// 해결: IRootKeyword import 사용
+import type { IRootKeyword } from '@/entities/keyword/model';
+```
+
+**MED-003 상세**:
+```typescript
+// 문제: clearColsAtoG는 A~G를 지운다는 의미이지만 실제로는 A~I 지움
+const range = `${sheetName}!A:I`;
+
+// 해결: 함수명 변경 또는 파라미터화
+export const clearColsAtoI = async ({ ... }) => { ... }
+```
+
+#### 🟢 Low Priority
+
+| 이슈 | 위치 | 상태 |
+|------|------|------|
+| LOW-001: 매직 넘버 (컬럼 개수 7) | `app/api/root-keywords/import/route.ts:72` | ⏳ |
+| LOW-002: 에러 핸들링 개선 | `features/sheet-sync/lib/useSheetSync.ts` | ⏳ |
+| LOW-003: 중복 requests 배열 | `features/sheet-sync/lib/useSheetSync.ts` | ⏳ |
+| LOW-004: 임시 주석 정리 (🔥) | `features/sheet-sync/lib/useSheetSync.ts` | ⏳ |
+
+---
 
 ### 선택적 개선사항
 
