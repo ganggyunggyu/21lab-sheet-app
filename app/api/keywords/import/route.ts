@@ -8,6 +8,8 @@ import {
   normalize,
   findColumnIndexes,
   ensureRequiredColumns,
+  IMPORT_SHEET_HEADERS,
+  mapKeywordToRow,
 } from '@/entities/keyword/lib';
 import {
   getSheetData,
@@ -376,33 +378,8 @@ const processFullRewrite = async (params: {
     };
   }
 
-  // 헤더 + 데이터 행 생성
-  const headers = [
-    [
-      '업체명',
-      '키워드',
-      '인기주제',
-      '순위',
-      '노출여부',
-      '바이럴 체크',
-      '인기글 순위',
-      '이미지 매칭',
-      '링크',
-    ],
-  ];
-  const dataRows = dbKeywords.map((kw, index) => {
-    return [
-      kw.company || '',
-      kw.keyword || '',
-      kw.popularTopic || '',
-      kw.rank ? String(kw.rank) : '',
-      kw.visibility ? 'o' : '',
-      '',
-      kw.rankWithCafe ? String(kw.rankWithCafe) : '',
-      kw.isUpdateRequired === true ? 'o' : '',
-      kw.url || '',
-    ];
-  });
+  const headers = [IMPORT_SHEET_HEADERS];
+  const dataRows = dbKeywords.map(mapKeywordToRow);
 
   const allRows = [...headers, ...dataRows];
 

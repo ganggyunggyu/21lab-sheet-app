@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server';
 import { ROOT_IMPORT_CONFIG } from '@/shared/constants/sheet';
 import { batchUpdateSheetData, clearColsAtoG } from '@/lib/google-sheets';
 import { getAllRootKeywords } from '@/entities/keyword';
-
-type SheetUpdate = { range: string; values: string[][] };
+import {
+  type SheetUpdate,
+  IMPORT_SHEET_HEADERS,
+  mapKeywordToRow,
+} from '@/entities/keyword/lib';
 
 export async function POST() {
   try {
@@ -26,38 +29,15 @@ export async function POST() {
       });
     }
 
-    // 2. 시트 전체 지우기 (A~I 컬럼)
+    // 2. 시트 전체 지우기 (A~M 컬럼)
     await clearColsAtoG({
       spreadsheetId: SHEET_ID,
       sheetName: sheetName,
     });
 
     // 3. 헤더 + 데이터 행 생성
-    const headers = [
-      [
-        '업체명',
-        '키워드',
-        '인기주제',
-        '순위',
-        '노출여부',
-        '바이럴 체크',
-        '인기글 순위',
-        '이미지 매칭',
-        '링크',
-      ],
-    ];
-
-    const dataRows = dbKeywords.map((kw) => [
-      kw.company || '',
-      kw.keyword || '',
-      kw.popularTopic || '',
-      kw.rank ? String(kw.rank) : '',
-      kw.visibility ? 'o' : '',
-      '', // 바이럴 체크 - 빈값
-      kw.rankWithCafe ? String(kw.rankWithCafe) : '',
-      kw.isUpdateRequired === true ? 'o' : '',
-      kw.url || '',
-    ]);
+    const headers = [IMPORT_SHEET_HEADERS];
+    const dataRows = dbKeywords.map(mapKeywordToRow);
 
     const allRows = [...headers, ...dataRows];
 
@@ -73,7 +53,7 @@ export async function POST() {
     ];
 
     const res = await batchUpdateSheetData(SHEET_ID, updates, sheetName);
-    const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 9;
+    const updatedCells = (res.totalUpdatedCells as number) || allRows.length * 13;
 
     return NextResponse.json({
       success: true,
