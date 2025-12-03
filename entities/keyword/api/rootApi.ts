@@ -39,9 +39,16 @@ export const replaceAllRootKeywords = async (keywords: RootKeywordData[]) => {
   };
 };
 
-export const getAllRootKeywords = async (): Promise<IRootKeyword[]> => {
+export const getAllRootKeywords = async () => {
   await connectDB();
-  return await RootKeyword.find();
+  const keywords = await RootKeyword.find()
+    .select(
+      'company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired keywordType matchedTitle postVendorName restaurantName sheetType lastChecked createdAt updatedAt'
+    )
+    .sort({ updatedAt: 1 })
+    .lean();
+
+  return keywords;
 };
 
 export const getRootKeywordsByCompany = async (
