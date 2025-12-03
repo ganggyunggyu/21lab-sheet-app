@@ -203,7 +203,7 @@ interface ClearColsParams {
 }
 
 /**
- * 지정한 시트에서 A~G 컬럼 전체 값을 삭제
+ * 지정한 시트에서 A~M 컬럼 전체 값을 삭제
  * (컬럼 구조는 그대로 두고, 값만 싹 지움)
  */
 export const clearColsAtoG = async ({
@@ -212,7 +212,7 @@ export const clearColsAtoG = async ({
 }: ClearColsParams) => {
   const sheets = getGoogleSheetsClient();
 
-  const range = `${sheetName}!A:I`; // 모든 행의 A~G 컬럼
+  const range = `${sheetName}!A:M`;
 
   await sheets.spreadsheets.values.clear({
     spreadsheetId,
