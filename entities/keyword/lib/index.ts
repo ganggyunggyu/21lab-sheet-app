@@ -9,4 +9,6 @@ export {
   normalize,
   findColumnIndexes,
   ensureRequiredColumns,
+  IMPORT_SHEET_HEADERS,
+  mapKeywordToRow,
 } from './sheet-utils';

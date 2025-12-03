@@ -110,3 +110,27 @@ export const ensureRequiredColumns = (
 
   return null;
 };
+
+export const IMPORT_SHEET_HEADERS = [
+  '업체명',
+  '키워드',
+  '인기주제',
+  '순위',
+  '노출여부',
+  '바이럴 체크',
+  '인기글 순위',
+  '이미지 매칭',
+  '링크',
+];
+
+export const mapKeywordToRow = (kw: any): string[] => [
+  kw.company || '',
+  kw.keyword || '',
+  kw.popularTopic || '',
+  kw.rank ? String(kw.rank) : '',
+  kw.visibility ? 'o' : '',
+  '',
+  kw.rankWithCafe ? String(kw.rankWithCafe) : '',
+  kw.isUpdateRequired === true ? 'o' : '',
+  kw.url || '',
+];
