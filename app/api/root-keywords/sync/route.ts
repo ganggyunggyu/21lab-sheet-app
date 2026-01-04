@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
 
     console.log('🔥 파싱된 키워드 개수:', keywords.length);
     console.log('🔥 파싱된 데이터 샘플:', keywords.slice(0, 3));
+    console.log('🔥 마지막 키워드:', keywords[keywords.length - 1]);
 
     const result = await replaceAllRootKeywords(keywords);
 
