@@ -25,4 +25,5 @@ export interface RootKeywordData extends Omit<BaseKeyword, 'rank' | 'sheetType' 
   sheetType?: 'package' | 'dogmaru' | 'dogmaru-exclude';
   popularTopic?: string;
   isUpdateRequired?: boolean;
+  isNewLogic?: boolean;
 }

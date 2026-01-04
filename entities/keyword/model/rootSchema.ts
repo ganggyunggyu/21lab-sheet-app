@@ -14,6 +14,7 @@ export interface IRootKeyword extends Document {
   rank?: number;
   rankWithCafe?: number;
   restaurantName?: string;
+  isNewLogic?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,6 +67,10 @@ if (typeof window === 'undefined') {
       },
       restaurantName: {
         type: String,
+      },
+      isNewLogic: {
+        type: Boolean,
+        default: false,
       },
     },
     {

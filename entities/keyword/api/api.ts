@@ -54,7 +54,7 @@ export const getAllKeywords = async (): Promise<IKeyword[]> => {
 export const getKeywordBySheetType = async (sheetType: string) => {
   await connectDB();
   const keywords = await Keyword.find({ sheetType: sheetType })
-    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired sheetType lastChecked createdAt updatedAt')
+    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic sheetType lastChecked createdAt updatedAt')
     .sort({ updatedAt: 1 })
     .lean();
   return keywords;

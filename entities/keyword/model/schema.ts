@@ -13,6 +13,7 @@ export interface IKeyword extends Document {
   rank: number;
   rankWithCafe?: number;
   isUpdateRequired?: boolean;
+  isNewLogic?: boolean;
 }
 
 let Keyword: Model<IKeyword>;
@@ -54,6 +55,10 @@ if (typeof window === 'undefined') {
       },
       isUpdateRequired: {
         type: Boolean,
+      },
+      isNewLogic: {
+        type: Boolean,
+        default: false,
       },
       sheetType: {
         type: String,

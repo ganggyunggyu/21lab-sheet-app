@@ -121,6 +121,7 @@ export const IMPORT_SHEET_HEADERS = [
   '인기글 순위',
   '이미지 매칭',
   '링크',
+  '변경',
 ];
 
 export const mapKeywordToRow = (kw: any): string[] => [
@@ -133,4 +134,5 @@ export const mapKeywordToRow = (kw: any): string[] => [
   kw.rankWithCafe ? String(kw.rankWithCafe) : '',
   kw.isUpdateRequired === true ? 'o' : '',
   kw.url || '',
+  kw.isNewLogic ? 'o' : '',
 ];

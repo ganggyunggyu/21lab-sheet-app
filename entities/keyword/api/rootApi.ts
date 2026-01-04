@@ -43,7 +43,7 @@ export const getAllRootKeywords = async () => {
   await connectDB();
   const keywords = await RootKeyword.find()
     .select(
-      'company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired keywordType matchedTitle postVendorName restaurantName sheetType lastChecked createdAt updatedAt'
+      'company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic keywordType matchedTitle postVendorName restaurantName sheetType lastChecked createdAt updatedAt'
     )
     .sort({ updatedAt: 1 })
     .lean();
