@@ -39,10 +39,10 @@ export const ROOT_SYNC_CONFIG = {
 export const ROOT_IMPORT_CONFIG = {
   SHEET_ID: '1T9PHu-fH6HPmyYA9dtfXaDLm20XAPN-9mzlE2QTPkF0',
   SHEET_NAMES: {
-    ROOT: '루트 크롬',
+    ROOT: '루트',
   },
   LABELS: {
-    ROOT: '루트 크롬',
+    ROOT: '루트',
   },
 } as const;
 
