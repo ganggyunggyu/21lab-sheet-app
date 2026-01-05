@@ -6,7 +6,7 @@ export interface BaseKeyword {
   url: string;
   lastChecked?: Date | string;
   rank: number;
-  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude';
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude' | 'pet';
   popularTopic: string;
   matchedTitle?: string;
 }
@@ -22,7 +22,7 @@ export interface PackageKeywordData extends BaseKeyword {
 export interface RootKeywordData extends Omit<BaseKeyword, 'rank' | 'sheetType' | 'popularTopic'> {
   rank?: number;
   rankWithCafe?: number;
-  sheetType?: 'package' | 'dogmaru' | 'dogmaru-exclude';
+  sheetType?: 'package' | 'dogmaru' | 'dogmaru-exclude' | 'pet';
   popularTopic?: string;
   isUpdateRequired?: boolean;
   isNewLogic?: boolean;

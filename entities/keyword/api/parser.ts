@@ -4,7 +4,7 @@ import { KeywordData } from './api';
 export async function parseSheetData(
   sheetId: string,
   sheetName: string,
-  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude'
+  sheetType: 'package' | 'dogmaru' | 'dogmaru-exclude' | 'pet'
 ): Promise<KeywordData[]> {
   const sheets = getGoogleSheetsClient(true);
 
