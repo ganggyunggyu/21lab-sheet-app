@@ -204,6 +204,13 @@ export const SheetActions = () => {
               도그마루 제외만
             </button>
             <button
+              onClick={() => handleExportChoice('pet')}
+              className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              role="menuitem"
+            >
+              애견만
+            </button>
+            <button
               className="block w-full px-3 py-2 text-left text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
               role="menuitem"
             >

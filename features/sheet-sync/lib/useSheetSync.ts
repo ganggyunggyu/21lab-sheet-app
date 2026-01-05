@@ -168,9 +168,29 @@ export const useSheetSync = () => {
     }
   };
 
+  // pet 내보내기 (DB→시트)
+  const handleExportPet = async () => {
+    setIsSyncing(true);
+    const toastId = toast.loading('애견 내보내기 중...');
+
+    try {
+      await importMutation.mutateAsync({
+        sheetId: TEST_CONFIG.SHEET_ID,
+        sheetName: PRODUCTION_CONFIG.SHEET_NAMES.PET,
+        sheetType: 'pet' as MainTab,
+        mode: 'rewrite',
+      });
+      toast.dismiss(toastId);
+    } catch (error) {
+      toast.dismiss(toastId);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // 내보내기 선택 핸들러
   const handleExportChoice = async (
-    which: 'current' | 'all' | 'package' | 'dogmaru' | 'dogmaru-exclude'
+    which: 'current' | 'all' | 'package' | 'dogmaru' | 'dogmaru-exclude' | 'pet'
   ) => {
     setIsExportOpen(false);
     if (which === 'current') return handleSyncToDB();
@@ -179,6 +199,7 @@ export const useSheetSync = () => {
     if (which === 'dogmaru') return handleSyncSpecific('dogmaru');
     if (which === 'dogmaru-exclude')
       return handleSyncSpecific('dogmaru-exclude');
+    if (which === 'pet') return handleExportPet();
   };
 
   return {
