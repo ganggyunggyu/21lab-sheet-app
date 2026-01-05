@@ -60,6 +60,24 @@ export const getKeywordBySheetType = async (sheetType: string) => {
   return keywords;
 };
 
+export const getKeywordsByKeywordType = async (keywordType: string) => {
+  await connectDB();
+  const keywords = await Keyword.find({ keywordType })
+    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic sheetType keywordType lastChecked createdAt updatedAt')
+    .sort({ updatedAt: 1 })
+    .lean();
+  return keywords;
+};
+
+export const getKeywordsByCompanies = async (companies: string[]) => {
+  await connectDB();
+  const keywords = await Keyword.find({ company: { $in: companies } })
+    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic sheetType keywordType lastChecked createdAt updatedAt')
+    .sort({ updatedAt: 1 })
+    .lean();
+  return keywords;
+};
+
 export const getKeywordsByCompany = async (
   company: string
 ): Promise<IKeyword[]> => {

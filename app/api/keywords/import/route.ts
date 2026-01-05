@@ -17,7 +17,7 @@ import {
   getSpreadsheetMetadata,
   clearColsAtoG,
 } from '@/lib/google-sheets';
-import { getKeywordBySheetType } from '@/entities/keyword/api/api';
+import { getKeywordBySheetType, getKeywordsByCompanies } from '@/entities/keyword/api/api';
 
 const buildVisibilityUpdatesByMap = (params: {
   title: string;
@@ -367,7 +367,9 @@ const processFullRewrite = async (params: {
 }) => {
   const { sheetId, sheetName, sheetType } = params;
 
-  const dbKeywords = await getKeywordBySheetType(sheetType);
+  const dbKeywords = sheetType === 'pet'
+    ? await getKeywordsByCompanies(['서리펫', '도그마루'])
+    : await getKeywordBySheetType(sheetType);
 
   if (dbKeywords.length === 0) {
     return {
