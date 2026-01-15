@@ -122,6 +122,7 @@ export const IMPORT_SHEET_HEADERS = [
   '이미지 매칭',
   '링크',
   '변경',
+  '행',
 ];
 
 export const mapKeywordToRow = (kw: any): string[] => [
@@ -135,4 +136,5 @@ export const mapKeywordToRow = (kw: any): string[] => [
   kw.isUpdateRequired === true ? 'o' : '',
   kw.url || '',
   kw.isNewLogic ? 'o' : '',
+  String(kw.foundPage ?? 0),
 ];

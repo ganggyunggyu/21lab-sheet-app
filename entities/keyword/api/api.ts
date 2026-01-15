@@ -72,7 +72,7 @@ export const getKeywordsByKeywordType = async (keywordType: string) => {
 export const getKeywordsByCompanies = async (companies: string[]) => {
   await connectDB();
   const keywords = await Keyword.find({ company: { $in: companies } })
-    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic sheetType keywordType lastChecked createdAt updatedAt')
+    .select('company keyword visibility popularTopic url rank rankWithCafe isUpdateRequired isNewLogic foundPage sheetType keywordType lastChecked createdAt updatedAt')
     .sort({ updatedAt: 1 })
     .lean();
   return keywords;
