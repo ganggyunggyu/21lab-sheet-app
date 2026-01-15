@@ -90,14 +90,14 @@ app → features → entities → shared
 // ✅ 권장: 레이어 최상위 export
 import { SheetTable } from '@/features/sheet-table';
 import { useCompanyList } from '@/entities/sheet';
-import { api } from '@/shared/api';
+import { apiClient } from '@/shared';
 
-// ✅ 허용: 뎁스별 명시적 import
-import { SheetTable } from '@/features/sheet-table/ui';
-import { useCompanyList } from '@/entities/sheet/lib';
+// ✅ 허용: 레이어 내부 세부 경로 (절대 경로만)
+import { useSheetData } from '@/features/sheet-table/lib';
+import { SheetTableFilters } from '@/features/sheet-table/ui/SheetTableFilters';
 
-// ❌ 금지: 직접 파일 import
-import { SheetTable } from '@/features/sheet-table/ui/SheetTable';
+// ❌ 금지: 상대 경로 import
+import { SheetTable } from '../ui/SheetTable';
 ```
 
 ### 각 레이어의 역할
@@ -131,6 +131,19 @@ const { data, isLoading } = useQuery();
 // ❌ 금지
 const query = useQuery();
 const data = query.data;
+
+// ✅ className에는 cn 함수만 사용
+import { cn } from '@/shared';
+
+<div className={cn('rounded', isActive && 'bg-blue-600', className)} />;
+
+// ✅ Fragment는 React.Fragment만 사용
+return (
+  <React.Fragment>
+    <Header />
+    <Main />
+  </React.Fragment>
+);
 
 // ✅ Props 타입 정의
 interface ButtonProps {
@@ -192,6 +205,10 @@ export const useTheme = () => {
 };
 ```
 
+**Jotai 규칙**
+- action은 atom에 두지 말고 hooks에서 조합
+- 공용 로직은 `shared/hooks` 또는 도메인별 `entities/*/lib`에 배치
+
 ### API 라우트
 
 ```typescript
@@ -218,8 +235,9 @@ export async function POST(req: NextRequest) {
 
 ```typescript
 // features/sheet-table/ui/SheetTable.tsx
-import { useState } from 'react';
-import { useSheetData } from '../lib/hooks';
+import React from 'react';
+import { useSheetData } from '@/features/sheet-table/lib';
+import { cn } from '@/shared';
 
 interface SheetTableProps {
   sheetId: string;
@@ -232,9 +250,11 @@ export const SheetTable = ({ sheetId, sheetName }: SheetTableProps) => {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <table>
-      {/* 테이블 렌더링 */}
-    </table>
+    <React.Fragment>
+      <table className={cn('w-full', 'border-collapse')}>
+        {/* 테이블 렌더링 */}
+      </table>
+    </React.Fragment>
   );
 };
 ```
@@ -242,13 +262,18 @@ export const SheetTable = ({ sheetId, sheetName }: SheetTableProps) => {
 ### 스타일링
 
 ```typescript
-// Tailwind 유틸리티 클래스 사용
-<button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+// Tailwind 유틸리티 클래스 + cn 사용
+<button
+  className={cn(
+    'px-4 py-2 rounded',
+    'bg-blue-500 text-white hover:bg-blue-600'
+  )}
+>
   Click me
 </button>
 
 // 다크모드 지원
-<div className="bg-white dark:bg-gray-900 text-black dark:text-white">
+<div className={cn('bg-white text-black', 'dark:bg-gray-900 dark:text-white')}>
   Content
 </div>
 ```
