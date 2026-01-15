@@ -7,3 +7,4 @@ export {
   queryKeys,
 } from './hooks';
 export { useColumnIndices } from './useColumnIndices';
+export { extractSheetId, toColumnLetter } from './sheet-utils';
